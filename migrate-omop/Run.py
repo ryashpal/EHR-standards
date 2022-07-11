@@ -66,24 +66,7 @@ if __name__ == "__main__":
     # createSchema(con=con, schemaName=Config.schema_name)
 
     # # -1. Import
-    # Import.importPatients(
-    #     con=con,
-    #     destinationSchemaName=Config.schema_name,
-    #     filePath = Config.file_names['patients'],
-    #     fileSeparator=','
-    #     )
-    # Import.importAdmissions(
-    #     con=con,
-    #     destinationSchemaName=Config.schema_name,
-    #     filePath = Config.file_names['admission'],
-    #     fileSeparator=','
-    #     )
-    Import.importTransfers(
-        con=con,
-        destinationSchemaName=Config.schema_name,
-        filePath = Config.file_names['transfers'],
-        fileSeparator=','
-        )
+    Import.importCsv(con, destinationSchemaName=Config.schema_name)
 
     # # 00. Stage
     # Stage.migrate(con=con, schemaName=Config.schema_name)
