@@ -9,6 +9,7 @@ ch = logging.StreamHandler(sys.stdout)
 ch.setFormatter(format)
 log.addHandler(ch)
 
+import Lookup
 import Import
 import Stage
 from etl import Location
@@ -66,25 +67,20 @@ def createSchema(con, schemaName):
             cursor.execute(createSchemaQuery)
 
 
-if __name__ == "__main__":
+def createLookupTables(con):
+    Lookup.migrate(con=con, destinationSchemaName=Config.schema_name)
 
-    log.info("Start")
 
-    con = getConnnection()
+def importFromCsv(con):
+    Import.importCsv(con=con, destinationSchemaName=Config.schema_name)
 
-    # dropSchema(con=con, schemaName=Config.schema_name)
-    # createSchema(con=con, schemaName=Config.schema_name)
 
-    # # -9. Lookup tables
-    # Lookup.migrate(con, destinationSchemaName=Config.schema_name)
+def stageData(con):
+    Stage.migrate(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
 
-    # # -1. Import
-    # Import.importCsv(con, destinationSchemaName=Config.schema_name)
 
-    # # 00. Stage
-    # Stage.migrate(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
-
-    # # Run the following code without mixing up the order
+def performETL(con):
+    # # Run the following code in the given order
 
     # # 01. Location
     # Location.migrate(con=con, schemaName=Config.schema_name)
@@ -143,11 +139,11 @@ if __name__ == "__main__":
     # # 19. Measurement
     # Measurement.migrate(con=con, schemaName=Config.schema_name)
 
-    # 20. Drug Lookup
-    Drug.migrateLookup(con=con, schemaName=Config.schema_name)
+    # # 20. Drug Lookup
+    # Drug.migrateLookup(con=con, schemaName=Config.schema_name)
 
-    # 21. Drug Exposure
-    Drug.migrate(con=con, schemaName=Config.schema_name)
+    # # 21. Drug Exposure
+    # Drug.migrate(con=con, schemaName=Config.schema_name)
 
     # 22. Device Exposure
     DeviceExposure.migrate(con=con, schemaName=Config.schema_name)
@@ -179,10 +175,32 @@ if __name__ == "__main__":
     # 31. Source
     Source.migrate(con=con, schemaName=Config.schema_name)
 
+
+def unloadData(con):
     # 98. Unload Vocabulary
     Unload.unloadVocabulary(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
 
     # 99. Unload data
     Unload.unloadData(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
+
+
+if __name__ == "__main__":
+
+    log.info("Start")
+
+    con = getConnnection()
+
+    # dropSchema(con=con, schemaName=Config.schema_name)
+    # createSchema(con=con, schemaName=Config.schema_name)
+
+    # migrateLookupTables(con=con)
+
+    # importFromCsv(con=con)
+
+    # stageData(con=con)
+
+    performETL(con=con)
+
+    unloadData(con=con)
 
     log.info("End")
