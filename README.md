@@ -1,6 +1,8 @@
 # EHR-standards
 
-## Use Run.py to execute the migration scripts
+## How to run
+
+Use Run.py to execute the migration scripts
 
 This will perform the sollowing steps;
 
