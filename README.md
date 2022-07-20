@@ -34,9 +34,9 @@ Ex:
 
 patients = {
 
-    'file_name': Path for the csv file
+    file_name: Path for the csv file
     
-    'column_mapping': {
+    column_mapping: {
     
         -- CSV column name: Standard column name,
         
