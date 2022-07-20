@@ -11,12 +11,22 @@ log.addHandler(ch)
 
 import Import
 import Stage
-import Location
-import Person
-import Death
-import CareSite
-import Visit
-import Measurement
+from etl import Location
+from etl import Person
+from etl import Death
+from etl import CareSite
+from etl import Visit
+from etl import Measurement
+from etl import Diagnoses
+from etl import Procedure
+from etl import Observation
+from etl import ConditionOccurrence
+from etl import Specimen
+from etl import Drug
+from etl import DeviceExposure
+from etl import Relationship
+from etl import Source
+import Unload
 
 import Config
 
@@ -65,11 +75,14 @@ if __name__ == "__main__":
     # dropSchema(con=con, schemaName=Config.schema_name)
     # createSchema(con=con, schemaName=Config.schema_name)
 
+    # # -9. Lookup tables
+    # Lookup.migrate(con, destinationSchemaName=Config.schema_name)
+
     # # -1. Import
-    Import.importCsv(con, destinationSchemaName=Config.schema_name)
+    # Import.importCsv(con, destinationSchemaName=Config.schema_name)
 
     # # 00. Stage
-    # Stage.migrate(con=con, schemaName=Config.schema_name)
+    # Stage.migrate(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
 
     # # Run the following code without mixing up the order
 
@@ -82,7 +95,7 @@ if __name__ == "__main__":
     # # 03. Death
     # Death.migrate(con=con, schemaName=Config.schema_name)
 
-    # 04. Care Site
+    # # 04. Care Site
     # CareSite.migrate(con=con, schemaName=Config.schema_name)
 
     # # 05. Visit Occurrence Part 1
@@ -108,5 +121,68 @@ if __name__ == "__main__":
 
     # # 12. Visit Detail
     # Visit.migrateVisitDetail(con=con, schemaName=Config.schema_name)
+
+    # # 13. Diagnosis
+    # Diagnoses.migrate(con=con, schemaName=Config.schema_name)
+
+    # # 14. Procedure Lookup
+    # Procedure.migrateLookup(con=con, schemaName=Config.schema_name)
+
+    # # 15. Observation Lookup
+    # Observation.migrateLookup(con=con, schemaName=Config.schema_name)
+
+    # # 16. Condition Occurrence
+    # ConditionOccurrence.migrate(con=con, schemaName=Config.schema_name)
+
+    # # 17. Procedure occurrence
+    # Procedure.migrate(con=con, schemaName=Config.schema_name)
+
+    # # 18. Specimen
+    # Specimen.migrate(con=con, schemaName=Config.schema_name)
+
+    # # 19. Measurement
+    # Measurement.migrate(con=con, schemaName=Config.schema_name)
+
+    # 20. Drug Lookup
+    Drug.migrateLookup(con=con, schemaName=Config.schema_name)
+
+    # 21. Drug Exposure
+    Drug.migrate(con=con, schemaName=Config.schema_name)
+
+    # 22. Device Exposure
+    DeviceExposure.migrate(con=con, schemaName=Config.schema_name)
+
+    # 23. Observation
+    Observation.migrate(con=con, schemaName=Config.schema_name)
+
+    # 24. Observation Period
+    Observation.migratePeriod(con=con, schemaName=Config.schema_name)
+
+    # 25. Person Final
+    Person.migrateFinal(con=con, schemaName=Config.schema_name)
+
+    # 26. Fact Relationship
+    Relationship.migrate(con=con, schemaName=Config.schema_name)
+
+    # 27. Condition Era
+    ConditionOccurrence.migrateConditionEra(con=con, schemaName=Config.schema_name)
+
+    # 28. Drug Era
+    Drug.migrateDrugEra(con=con, schemaName=Config.schema_name)
+
+    # 29. Dose Era
+    Drug.migrateDoseEra(con=con, schemaName=Config.schema_name)
+
+    # 30. 
+    # Not migrated
+
+    # 31. Source
+    Source.migrate(con=con, schemaName=Config.schema_name)
+
+    # 98. Unload Vocabulary
+    Unload.unloadVocabulary(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
+
+    # 99. Unload data
+    Unload.unloadData(con=con, sourceSchemaName=Config.schema_name, destinationSchemaName=Config.schema_name)
 
     log.info("End")

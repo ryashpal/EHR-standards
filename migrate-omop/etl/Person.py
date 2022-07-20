@@ -31,7 +31,7 @@ def dropSubjectEthnicityTemp(con, schemaName):
 
 
 def createEthnicityConcept(con, schemaName):
-    log.info("Creating lookup table: " + schemaName + ".lk_pat_ethnicity_concept")
+    log.info("Creating table: " + schemaName + ".lk_pat_ethnicity_concept")
     dropQuery = """drop table if exists """ + schemaName + """.lk_pat_ethnicity_concept cascade"""
     createQuery = """CREATE TABLE """ + schemaName + """.lk_pat_ethnicity_concept AS
         SELECT DISTINCT
@@ -166,8 +166,55 @@ def createPersonCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
+def createPersonTemp(con, schemaName):
+    log.info("Creating table: " + schemaName + ".tmp_person")
+    dropQuery = """drop table if exists """ + schemaName + """.tmp_person cascade"""
+    createQuery = """CREATE TABLE """ + schemaName + """.tmp_person AS
+        SELECT per.*
+        FROM 
+            """ + schemaName + """.cdm_person per
+        INNER JOIN
+            """ + schemaName + """.cdm_observation_period op
+                ON  per.person_id = op.person_id
+        ;
+        """
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(dropQuery)
+            cursor.execute(createQuery)
+
+
+def createPerson(con, schemaName):
+    log.info("Truncating table: " + schemaName + ".cdm_person")
+    truncateQuery = """TRUNCATE TABLE """ + schemaName + """.cdm_person"""
+    insertQuery = """INSERT INTO """ + schemaName + """.cdm_person
+        SELECT per.*
+        FROM
+            """ + schemaName + """.tmp_person per
+        ;
+    """
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(truncateQuery)
+            cursor.execute(insertQuery)
+
+
+def dropPersonTemp(con, schemaName):
+    log.info("Creating table: " + schemaName + ".tmp_person")
+    dropQuery = """drop table if exists """ + schemaName + """.tmp_person cascade"""
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(dropQuery)
+
+
 def migrate(con, schemaName):
     createSubjectEthnicityTemp(con = con, schemaName = schemaName)
     createEthnicityConcept(con = con, schemaName = schemaName)
     createPersonCdm(con = con, schemaName = schemaName)
     dropSubjectEthnicityTemp(con = con, schemaName = schemaName)
+
+
+def migrateFinal(con, schemaName):
+    createPersonTemp(con = con, schemaName = schemaName)
+    createPerson(con = con, schemaName = schemaName)
+    dropPersonTemp(con = con, schemaName = schemaName)

@@ -22,8 +22,8 @@ patients = {
     },
 }
 
-admission = {
-    'file_name': '/superbugai-data/mimiciv/1.0/core/admission.csv',
+admissions = {
+    'file_name': '/superbugai-data/mimiciv/1.0/core/admissions.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',

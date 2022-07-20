@@ -109,21 +109,21 @@ def importAdmissions(con, destinationSchemaName, filePath, fileSeparator):
     df.edregtime.replace({np.nan: None}, inplace=True)
     df.edouttime.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['admittime'],
-        Config.patients['column_mapping']['dischtime'],
-        Config.patients['column_mapping']['deathtime'],
-        Config.patients['column_mapping']['admission_type'],
-        Config.patients['column_mapping']['admission_location'],
-        Config.patients['column_mapping']['discharge_location'],
-        Config.patients['column_mapping']['insurance'],
-        Config.patients['column_mapping']['language'],
-        Config.patients['column_mapping']['marital_status'],
-        Config.patients['column_mapping']['ethnicity'],
-        Config.patients['column_mapping']['edregtime'],
-        Config.patients['column_mapping']['edouttime'],
-        Config.patients['column_mapping']['hospital_expire_flag'],
+        Config.admissions['column_mapping']['subject_id'],
+        Config.admissions['column_mapping']['hadm_id'],
+        Config.admissions['column_mapping']['admittime'],
+        Config.admissions['column_mapping']['dischtime'],
+        Config.admissions['column_mapping']['deathtime'],
+        Config.admissions['column_mapping']['admission_type'],
+        Config.admissions['column_mapping']['admission_location'],
+        Config.admissions['column_mapping']['discharge_location'],
+        Config.admissions['column_mapping']['insurance'],
+        Config.admissions['column_mapping']['language'],
+        Config.admissions['column_mapping']['marital_status'],
+        Config.admissions['column_mapping']['ethnicity'],
+        Config.admissions['column_mapping']['edregtime'],
+        Config.admissions['column_mapping']['edouttime'],
+        Config.admissions['column_mapping']['hospital_expire_flag'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='ADMISSIONS', df=df, dfColumns=dfColumns)
 
@@ -158,13 +158,13 @@ def importTransfers(con, destinationSchemaName, filePath, fileSeparator):
     df.intime.replace({np.nan: None}, inplace=True)
     df.outtime.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['transfer_id'],
-        Config.patients['column_mapping']['eventtype'],
-        Config.patients['column_mapping']['careunit'],
-        Config.patients['column_mapping']['intime'],
-        Config.patients['column_mapping']['outtime'],
+        Config.transfers['column_mapping']['subject_id'],
+        Config.transfers['column_mapping']['hadm_id'],
+        Config.transfers['column_mapping']['transfer_id'],
+        Config.transfers['column_mapping']['eventtype'],
+        Config.transfers['column_mapping']['careunit'],
+        Config.transfers['column_mapping']['intime'],
+        Config.transfers['column_mapping']['outtime'],
         ]
     df['hadm_id'] = df['hadm_id'].astype('Int64').fillna(0).astype('int').replace({0: None})
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='TRANSFERS', df=df, dfColumns=dfColumns)
@@ -195,11 +195,11 @@ def importDiagnosesIcd(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['seq_num'],
-        Config.patients['column_mapping']['icd_code'],
-        Config.patients['column_mapping']['icd_version'],
+        Config.diagnoses_icd['column_mapping']['subject_id'],
+        Config.diagnoses_icd['column_mapping']['hadm_id'],
+        Config.diagnoses_icd['column_mapping']['seq_num'],
+        Config.diagnoses_icd['column_mapping']['icd_code'],
+        Config.diagnoses_icd['column_mapping']['icd_version'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DIAGNOSES_ICD', df=df, dfColumns=dfColumns)
 
@@ -230,11 +230,11 @@ def importServices(con, destinationSchemaName, filePath, fileSeparator):
     df = pd.read_csv(filePath, sep=fileSeparator)
     df.transfertime.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['transfertime'],
-        Config.patients['column_mapping']['prev_service'],
-        Config.patients['column_mapping']['curr_service'],
+        Config.services['column_mapping']['subject_id'],
+        Config.services['column_mapping']['hadm_id'],
+        Config.services['column_mapping']['transfertime'],
+        Config.services['column_mapping']['prev_service'],
+        Config.services['column_mapping']['curr_service'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='SERVICES', df=df, dfColumns=dfColumns)
 
@@ -271,24 +271,31 @@ def importLabEvents(con, destinationSchemaName, filePath, fileSeparator):
             cursor.execute(createQuery)
 
     import pandas as pd
+    import numpy as np
 
     df = pd.read_csv(filePath, sep=fileSeparator)
+    df['hadm_id'] = df['hadm_id'].astype('Int64').fillna(0).astype('int').replace({0: None})
+    df['specimen_id'] = df['specimen_id'].astype('Int64').fillna(0).astype('int').replace({0: None})
+    df['itemid'] = df['itemid'].astype('Int64').fillna(0).astype('int').replace({0: None})
+    df.charttime.replace({np.nan: None}, inplace=True)
+    df.storetime.replace({np.nan: None}, inplace=True)
+
     dfColumns = [
-        Config.patients['column_mapping']['labevent_id'],
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['specimen_id'],
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['charttime'],
-        Config.patients['column_mapping']['storetime'],
-        Config.patients['column_mapping']['value'],
-        Config.patients['column_mapping']['valuenum'],
-        Config.patients['column_mapping']['valueuom'],
-        Config.patients['column_mapping']['ref_range_lower'],
-        Config.patients['column_mapping']['ref_range_upper'],
-        Config.patients['column_mapping']['flag'],
-        Config.patients['column_mapping']['priority'],
-        Config.patients['column_mapping']['comments'],
+        Config.labevents['column_mapping']['labevent_id'],
+        Config.labevents['column_mapping']['subject_id'],
+        Config.labevents['column_mapping']['hadm_id'],
+        Config.labevents['column_mapping']['specimen_id'],
+        Config.labevents['column_mapping']['itemid'],
+        Config.labevents['column_mapping']['charttime'],
+        Config.labevents['column_mapping']['storetime'],
+        Config.labevents['column_mapping']['value'],
+        Config.labevents['column_mapping']['valuenum'],
+        Config.labevents['column_mapping']['valueuom'],
+        Config.labevents['column_mapping']['ref_range_lower'],
+        Config.labevents['column_mapping']['ref_range_upper'],
+        Config.labevents['column_mapping']['flag'],
+        Config.labevents['column_mapping']['priority'],
+        Config.labevents['column_mapping']['comments'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='LABEVENTS', df=df, dfColumns=dfColumns)
 
@@ -318,11 +325,11 @@ def importLabItems(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['label'],
-        Config.patients['column_mapping']['fluid'],
-        Config.patients['column_mapping']['category'],
-        Config.patients['column_mapping']['loinc_code'],
+        Config.d_labitems['column_mapping']['itemid'],
+        Config.d_labitems['column_mapping']['label'],
+        Config.d_labitems['column_mapping']['fluid'],
+        Config.d_labitems['column_mapping']['category'],
+        Config.d_labitems['column_mapping']['loinc_code'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='D_LABITEMS', df=df, dfColumns=dfColumns)
 
@@ -352,12 +359,12 @@ def importProcedures(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['seq_num'],
-        Config.patients['column_mapping']['chartdate'],
-        Config.patients['column_mapping']['icd_code'],
-        Config.patients['column_mapping']['icd_version'],
+        Config.procedures_icd['column_mapping']['subject_id'],
+        Config.procedures_icd['column_mapping']['hadm_id'],
+        Config.procedures_icd['column_mapping']['seq_num'],
+        Config.procedures_icd['column_mapping']['chartdate'],
+        Config.procedures_icd['column_mapping']['icd_code'],
+        Config.procedures_icd['column_mapping']['icd_version'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PROCEDURES_ICD', df=df, dfColumns=dfColumns)
 
@@ -388,12 +395,12 @@ def importHcpcsEvents(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['chartdate'],
-        Config.patients['column_mapping']['hcpcs_cd'],
-        Config.patients['column_mapping']['seq_num'],
-        Config.patients['column_mapping']['short_description'],
+        Config.hcpcsevents['column_mapping']['subject_id'],
+        Config.hcpcsevents['column_mapping']['hadm_id'],
+        Config.hcpcsevents['column_mapping']['chartdate'],
+        Config.hcpcsevents['column_mapping']['hcpcs_cd'],
+        Config.hcpcsevents['column_mapping']['seq_num'],
+        Config.hcpcsevents['column_mapping']['short_description'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='HCPCSEVENTS', df=df, dfColumns=dfColumns)
 
@@ -426,13 +433,13 @@ def importDrugCodes(con, destinationSchemaName, filePath, fileSeparator):
     df['drg_severity'] = df['drg_severity'].astype('Int64').fillna(0).astype('int').replace({0: None})
     df['drg_mortality'] = df['drg_mortality'].astype('Int64').fillna(0).astype('int').replace({0: None})
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['drg_type'],
-        Config.patients['column_mapping']['drg_code'],
-        Config.patients['column_mapping']['description'],
-        Config.patients['column_mapping']['drg_severity'],
-        Config.patients['column_mapping']['drg_mortality'],
+        Config.drgcodes['column_mapping']['subject_id'],
+        Config.drgcodes['column_mapping']['hadm_id'],
+        Config.drgcodes['column_mapping']['drg_type'],
+        Config.drgcodes['column_mapping']['drg_code'],
+        Config.drgcodes['column_mapping']['description'],
+        Config.drgcodes['column_mapping']['drg_severity'],
+        Config.drgcodes['column_mapping']['drg_mortality'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DRGCODES', df=df, dfColumns=dfColumns)
 
@@ -477,23 +484,23 @@ def importPrescriptions(con, destinationSchemaName, filePath, fileSeparator):
     df.stoptime.replace({np.nan: None}, inplace=True)
     df.starttime.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['pharmacy_id'],
-        Config.patients['column_mapping']['starttime'],
-        Config.patients['column_mapping']['stoptime'],
-        Config.patients['column_mapping']['drug_type'],
-        Config.patients['column_mapping']['drug'],
-        Config.patients['column_mapping']['gsn'],
-        Config.patients['column_mapping']['ndc'],
-        Config.patients['column_mapping']['prod_strength'],
-        Config.patients['column_mapping']['form_rx'],
-        Config.patients['column_mapping']['dose_val_rx'],
-        Config.patients['column_mapping']['dose_unit_rx'],
-        Config.patients['column_mapping']['form_val_disp'],
-        Config.patients['column_mapping']['form_unit_disp'],
-        Config.patients['column_mapping']['doses_per_24_hrs'],
-        Config.patients['column_mapping']['route'],
+        Config.prescriptions['column_mapping']['subject_id'],
+        Config.prescriptions['column_mapping']['hadm_id'],
+        Config.prescriptions['column_mapping']['pharmacy_id'],
+        Config.prescriptions['column_mapping']['starttime'],
+        Config.prescriptions['column_mapping']['stoptime'],
+        Config.prescriptions['column_mapping']['drug_type'],
+        Config.prescriptions['column_mapping']['drug'],
+        Config.prescriptions['column_mapping']['gsn'],
+        Config.prescriptions['column_mapping']['ndc'],
+        Config.prescriptions['column_mapping']['prod_strength'],
+        Config.prescriptions['column_mapping']['form_rx'],
+        Config.prescriptions['column_mapping']['dose_val_rx'],
+        Config.prescriptions['column_mapping']['dose_unit_rx'],
+        Config.prescriptions['column_mapping']['form_val_disp'],
+        Config.prescriptions['column_mapping']['form_unit_disp'],
+        Config.prescriptions['column_mapping']['doses_per_24_hrs'],
+        Config.prescriptions['column_mapping']['route'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PRESCRIPTIONS', df=df, dfColumns=dfColumns)
 
@@ -551,30 +558,30 @@ def importMicrobiologyEvents(con, destinationSchemaName, filePath, fileSeparator
     df.storedate.replace({np.nan: None}, inplace=True)
     df.storetime.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['microevent_id'],
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['micro_specimen_id'],
-        Config.patients['column_mapping']['chartdate'],
-        Config.patients['column_mapping']['charttime'],
-        Config.patients['column_mapping']['spec_itemid'],
-        Config.patients['column_mapping']['spec_type_desc'],
-        Config.patients['column_mapping']['test_seq'],
-        Config.patients['column_mapping']['storedate'],
-        Config.patients['column_mapping']['storetime'],
-        Config.patients['column_mapping']['test_itemid'],
-        Config.patients['column_mapping']['test_name'],
-        Config.patients['column_mapping']['org_itemid'],
-        Config.patients['column_mapping']['org_name'],
-        Config.patients['column_mapping']['isolate_num'],
-        Config.patients['column_mapping']['quantity'],
-        Config.patients['column_mapping']['ab_itemid'],
-        Config.patients['column_mapping']['ab_name'],
-        Config.patients['column_mapping']['dilution_text'],
-        Config.patients['column_mapping']['dilution_comparison'],
-        Config.patients['column_mapping']['dilution_value'],
-        Config.patients['column_mapping']['interpretation'],
-        Config.patients['column_mapping']['comments'],
+        Config.microbiologyevents['column_mapping']['microevent_id'],
+        Config.microbiologyevents['column_mapping']['subject_id'],
+        Config.microbiologyevents['column_mapping']['hadm_id'],
+        Config.microbiologyevents['column_mapping']['micro_specimen_id'],
+        Config.microbiologyevents['column_mapping']['chartdate'],
+        Config.microbiologyevents['column_mapping']['charttime'],
+        Config.microbiologyevents['column_mapping']['spec_itemid'],
+        Config.microbiologyevents['column_mapping']['spec_type_desc'],
+        Config.microbiologyevents['column_mapping']['test_seq'],
+        Config.microbiologyevents['column_mapping']['storedate'],
+        Config.microbiologyevents['column_mapping']['storetime'],
+        Config.microbiologyevents['column_mapping']['test_itemid'],
+        Config.microbiologyevents['column_mapping']['test_name'],
+        Config.microbiologyevents['column_mapping']['org_itemid'],
+        Config.microbiologyevents['column_mapping']['org_name'],
+        Config.microbiologyevents['column_mapping']['isolate_num'],
+        Config.microbiologyevents['column_mapping']['quantity'],
+        Config.microbiologyevents['column_mapping']['ab_itemid'],
+        Config.microbiologyevents['column_mapping']['ab_name'],
+        Config.microbiologyevents['column_mapping']['dilution_text'],
+        Config.microbiologyevents['column_mapping']['dilution_comparison'],
+        Config.microbiologyevents['column_mapping']['dilution_value'],
+        Config.microbiologyevents['column_mapping']['interpretation'],
+        Config.microbiologyevents['column_mapping']['comments'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='MICROBIOLOGYEVENTS', df=df, dfColumns=dfColumns)
 
@@ -640,33 +647,33 @@ def importPharmacy(con, destinationSchemaName, filePath, fileSeparator):
     df.verifiedtime.replace({np.nan: None}, inplace=True)
     df.expirationdate.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['pharmacy_id'],
-        Config.patients['column_mapping']['poe_id'],
-        Config.patients['column_mapping']['starttime'],
-        Config.patients['column_mapping']['stoptime'],
-        Config.patients['column_mapping']['medication'],
-        Config.patients['column_mapping']['proc_type'],
-        Config.patients['column_mapping']['status'],
-        Config.patients['column_mapping']['entertime'],
-        Config.patients['column_mapping']['verifiedtime'],
-        Config.patients['column_mapping']['route'],
-        Config.patients['column_mapping']['frequency'],
-        Config.patients['column_mapping']['disp_sched'],
-        Config.patients['column_mapping']['infusion_type'],
-        Config.patients['column_mapping']['sliding_scale'],
-        Config.patients['column_mapping']['lockout_interval'],
-        Config.patients['column_mapping']['basal_rate'],
-        Config.patients['column_mapping']['one_hr_max'],
-        Config.patients['column_mapping']['doses_per_24_hrs'],
-        Config.patients['column_mapping']['duration'],
-        Config.patients['column_mapping']['duration_interval'],
-        Config.patients['column_mapping']['expiration_value'],
-        Config.patients['column_mapping']['expiration_unit'],
-        Config.patients['column_mapping']['expirationdate'],
-        Config.patients['column_mapping']['dispensation'],
-        Config.patients['column_mapping']['fill_quantity'],
+        Config.pharmacy['column_mapping']['subject_id'],
+        Config.pharmacy['column_mapping']['hadm_id'],
+        Config.pharmacy['column_mapping']['pharmacy_id'],
+        Config.pharmacy['column_mapping']['poe_id'],
+        Config.pharmacy['column_mapping']['starttime'],
+        Config.pharmacy['column_mapping']['stoptime'],
+        Config.pharmacy['column_mapping']['medication'],
+        Config.pharmacy['column_mapping']['proc_type'],
+        Config.pharmacy['column_mapping']['status'],
+        Config.pharmacy['column_mapping']['entertime'],
+        Config.pharmacy['column_mapping']['verifiedtime'],
+        Config.pharmacy['column_mapping']['route'],
+        Config.pharmacy['column_mapping']['frequency'],
+        Config.pharmacy['column_mapping']['disp_sched'],
+        Config.pharmacy['column_mapping']['infusion_type'],
+        Config.pharmacy['column_mapping']['sliding_scale'],
+        Config.pharmacy['column_mapping']['lockout_interval'],
+        Config.pharmacy['column_mapping']['basal_rate'],
+        Config.pharmacy['column_mapping']['one_hr_max'],
+        Config.pharmacy['column_mapping']['doses_per_24_hrs'],
+        Config.pharmacy['column_mapping']['duration'],
+        Config.pharmacy['column_mapping']['duration_interval'],
+        Config.pharmacy['column_mapping']['expiration_value'],
+        Config.pharmacy['column_mapping']['expiration_unit'],
+        Config.pharmacy['column_mapping']['expirationdate'],
+        Config.pharmacy['column_mapping']['dispensation'],
+        Config.pharmacy['column_mapping']['fill_quantity'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PHARMACY', df=df, dfColumns=dfColumns)
 
@@ -726,32 +733,32 @@ def importProcedureEvents(con, destinationSchemaName, filePath, fileSeparator):
     df.storetime.replace({np.nan: None}, inplace=True)
     df.comments_date.replace({np.nan: None}, inplace=True)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['stay_id'],
-        Config.patients['column_mapping']['starttime'],
-        Config.patients['column_mapping']['endtime'],
-        Config.patients['column_mapping']['storetime'],
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['value'],
-        Config.patients['column_mapping']['valueuom'],
-        Config.patients['column_mapping']['location'],
-        Config.patients['column_mapping']['locationcategory'],
-        Config.patients['column_mapping']['orderid'],
-        Config.patients['column_mapping']['linkorderid'],
-        Config.patients['column_mapping']['ordercategoryname'],
-        Config.patients['column_mapping']['secondaryordercategoryname'],
-        Config.patients['column_mapping']['ordercategorydescription'],
-        Config.patients['column_mapping']['patientweight'],
-        Config.patients['column_mapping']['totalamount'],
-        Config.patients['column_mapping']['totalamountuom'],
-        Config.patients['column_mapping']['isopenbag'],
-        Config.patients['column_mapping']['continueinnextdept'],
-        Config.patients['column_mapping']['cancelreason'],
-        Config.patients['column_mapping']['statusdescription'],
-        Config.patients['column_mapping']['comments_date'],
-        Config.patients['column_mapping']['originalamount'],
-        Config.patients['column_mapping']['originalrate'],
+        Config.procedureevents['column_mapping']['subject_id'],
+        Config.procedureevents['column_mapping']['hadm_id'],
+        Config.procedureevents['column_mapping']['stay_id'],
+        Config.procedureevents['column_mapping']['starttime'],
+        Config.procedureevents['column_mapping']['endtime'],
+        Config.procedureevents['column_mapping']['storetime'],
+        Config.procedureevents['column_mapping']['itemid'],
+        Config.procedureevents['column_mapping']['value'],
+        Config.procedureevents['column_mapping']['valueuom'],
+        Config.procedureevents['column_mapping']['location'],
+        Config.procedureevents['column_mapping']['locationcategory'],
+        Config.procedureevents['column_mapping']['orderid'],
+        Config.procedureevents['column_mapping']['linkorderid'],
+        Config.procedureevents['column_mapping']['ordercategoryname'],
+        Config.procedureevents['column_mapping']['secondaryordercategoryname'],
+        Config.procedureevents['column_mapping']['ordercategorydescription'],
+        Config.procedureevents['column_mapping']['patientweight'],
+        Config.procedureevents['column_mapping']['totalamount'],
+        Config.procedureevents['column_mapping']['totalamountuom'],
+        Config.procedureevents['column_mapping']['isopenbag'],
+        Config.procedureevents['column_mapping']['continueinnextdept'],
+        Config.procedureevents['column_mapping']['cancelreason'],
+        Config.procedureevents['column_mapping']['statusdescription'],
+        Config.procedureevents['column_mapping']['comments_date'],
+        Config.procedureevents['column_mapping']['originalamount'],
+        Config.procedureevents['column_mapping']['originalrate'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PROCEDUREEVENTS', df=df, dfColumns=dfColumns)
 
@@ -787,15 +794,15 @@ def importItems(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['label'],
-        Config.patients['column_mapping']['abbreviation'],
-        Config.patients['column_mapping']['linksto'],
-        Config.patients['column_mapping']['category'],
-        Config.patients['column_mapping']['unitname'],
-        Config.patients['column_mapping']['param_type'],
-        Config.patients['column_mapping']['lownormalvalue'],
-        Config.patients['column_mapping']['highnormalvalue'],
+        Config.d_items['column_mapping']['itemid'],
+        Config.d_items['column_mapping']['label'],
+        Config.d_items['column_mapping']['abbreviation'],
+        Config.d_items['column_mapping']['linksto'],
+        Config.d_items['column_mapping']['category'],
+        Config.d_items['column_mapping']['unitname'],
+        Config.d_items['column_mapping']['param_type'],
+        Config.d_items['column_mapping']['lownormalvalue'],
+        Config.d_items['column_mapping']['highnormalvalue'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='D_ITEMS', df=df, dfColumns=dfColumns)
 
@@ -828,15 +835,15 @@ def importDatetimeEvents(con, destinationSchemaName, filePath, fileSeparator):
 
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['stay_id'],
-        Config.patients['column_mapping']['charttime'],
-        Config.patients['column_mapping']['storetime'],
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['value'],
-        Config.patients['column_mapping']['valueuom'],
-        Config.patients['column_mapping']['warning'],
+        Config.datetimeevents['column_mapping']['subject_id'],
+        Config.datetimeevents['column_mapping']['hadm_id'],
+        Config.datetimeevents['column_mapping']['stay_id'],
+        Config.datetimeevents['column_mapping']['charttime'],
+        Config.datetimeevents['column_mapping']['storetime'],
+        Config.datetimeevents['column_mapping']['itemid'],
+        Config.datetimeevents['column_mapping']['value'],
+        Config.datetimeevents['column_mapping']['valueuom'],
+        Config.datetimeevents['column_mapping']['warning'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DATETIMEEVENTS', df=df, dfColumns=dfColumns)
 
@@ -845,109 +852,109 @@ def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
 
     log.info("Creating table: " + destinationSchemaName + ".CHARTEVENTS")
 
-    # dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.CHARTEVENTS CASCADE"""
-    # createQuery = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS
-    #     (
-    #         SUBJECT_ID INT NOT NULL,
-    #         HADM_ID INT NOT NULL,
-    #         STAY_ID INT NOT NULL,
-    #         CHARTTIME TIMESTAMP(0) NOT NULL,
-    #         STORETIME TIMESTAMP(0) ,
-    #         ITEMID INT NOT NULL,
-    #         VALUE VARCHAR(160) ,
-    #         VALUENUM DOUBLE PRECISION,
-    #         VALUEUOM VARCHAR(20),
-    #         WARNING SMALLINT NOT NULL
-    #     )
-    #     ;
-    #     """
-    # createChildQuery1 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_1 ( CHECK ( itemid >= 220000 AND itemid < 221000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery2 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_2 ( CHECK ( itemid >= 221000 AND itemid < 222000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery3 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_3 ( CHECK ( itemid >= 222000 AND itemid < 223000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery4 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_4 ( CHECK ( itemid >= 223000 AND itemid < 224000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery5 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_5 ( CHECK ( itemid >= 224000 AND itemid < 225000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery6 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_6 ( CHECK ( itemid >= 225000 AND itemid < 226000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery7 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_7 ( CHECK ( itemid >= 226000 AND itemid < 227000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery8 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_8 ( CHECK ( itemid >= 227000 AND itemid < 228000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery9 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_9 ( CHECK ( itemid >= 228000 AND itemid < 229000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createChildQuery10 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_10 ( CHECK ( itemid >= 229000 AND itemid < 230000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    # createFunctionQuery = """CREATE OR REPLACE FUNCTION """ + destinationSchemaName + """.chartevents_insert_trigger()
-    #     RETURNS TRIGGER AS $$
-    #     BEGIN
-    #     IF ( NEW.itemid >= 220000 AND NEW.itemid < 221000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_1 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 221000 AND NEW.itemid < 222000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_2 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 222000 AND NEW.itemid < 223000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_3 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 223000 AND NEW.itemid < 224000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_4 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 224000 AND NEW.itemid < 225000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_5 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 225000 AND NEW.itemid < 226000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_6 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 226000 AND NEW.itemid < 227000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_7 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 227000 AND NEW.itemid < 228000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_8 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 228000 AND NEW.itemid < 229000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_9 VALUES (NEW.*);
-    #     ELSIF ( NEW.itemid >= 229000 AND NEW.itemid < 230000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_10 VALUES (NEW.*);
-    #     ELSE
-    #         INSERT INTO """ + destinationSchemaName + """.chartevents_null VALUES (NEW.*);
-    #     END IF;
-    #     RETURN NULL;
-    #     END;
-    #     $$
-    #     LANGUAGE plpgsql
-    #     ;
-    #     """
-    # dropTriggerQuery = """DROP TRIGGER IF EXISTS insert_chartevents_trigger
-    # ON """ + destinationSchemaName + """.CHARTEVENTS
-    # ;
-    # """
-    # createTriggerQuery = """CREATE TRIGGER insert_chartevents_trigger
-    # BEFORE INSERT ON """ + destinationSchemaName + """.CHARTEVENTS
-    # FOR EACH ROW EXECUTE PROCEDURE """ + destinationSchemaName + """.chartevents_insert_trigger()
-    # ;
-    # """
-    # with con:
-    #     with con.cursor() as cursor:
-    #         cursor.execute(dropQuery)
-    #         cursor.execute(createQuery)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_1")
-    #         cursor.execute(createChildQuery1)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_2")
-    #         cursor.execute(createChildQuery2)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_3")
-    #         cursor.execute(createChildQuery3)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_4")
-    #         cursor.execute(createChildQuery4)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_5")
-    #         cursor.execute(createChildQuery5)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_6")
-    #         cursor.execute(createChildQuery6)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_7")
-    #         cursor.execute(createChildQuery7)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_8")
-    #         cursor.execute(createChildQuery8)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_9")
-    #         cursor.execute(createChildQuery9)
-    #         log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_10")
-    #         cursor.execute(createChildQuery10)
-    #         log.info("Creating function: " + destinationSchemaName + ".CHARTEVENTS.chartevents_insert_trigger()")
-    #         cursor.execute(createFunctionQuery)
-    #         log.info("Dropping trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
-    #         cursor.execute(dropTriggerQuery)
-    #         log.info("Creating trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
-    #         cursor.execute(createTriggerQuery)
+    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.CHARTEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS
+        (
+            SUBJECT_ID INT NOT NULL,
+            HADM_ID INT NOT NULL,
+            STAY_ID INT NOT NULL,
+            CHARTTIME TIMESTAMP(0) NOT NULL,
+            STORETIME TIMESTAMP(0) ,
+            ITEMID INT NOT NULL,
+            VALUE VARCHAR(160) ,
+            VALUENUM DOUBLE PRECISION,
+            VALUEUOM VARCHAR(20),
+            WARNING SMALLINT NOT NULL
+        )
+        ;
+        """
+    createChildQuery1 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_1 ( CHECK ( itemid >= 220000 AND itemid < 221000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery2 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_2 ( CHECK ( itemid >= 221000 AND itemid < 222000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery3 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_3 ( CHECK ( itemid >= 222000 AND itemid < 223000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery4 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_4 ( CHECK ( itemid >= 223000 AND itemid < 224000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery5 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_5 ( CHECK ( itemid >= 224000 AND itemid < 225000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery6 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_6 ( CHECK ( itemid >= 225000 AND itemid < 226000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery7 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_7 ( CHECK ( itemid >= 226000 AND itemid < 227000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery8 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_8 ( CHECK ( itemid >= 227000 AND itemid < 228000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery9 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_9 ( CHECK ( itemid >= 228000 AND itemid < 229000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createChildQuery10 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_10 ( CHECK ( itemid >= 229000 AND itemid < 230000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
+    createFunctionQuery = """CREATE OR REPLACE FUNCTION """ + destinationSchemaName + """.chartevents_insert_trigger()
+        RETURNS TRIGGER AS $$
+        BEGIN
+        IF ( NEW.itemid >= 220000 AND NEW.itemid < 221000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_1 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 221000 AND NEW.itemid < 222000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_2 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 222000 AND NEW.itemid < 223000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_3 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 223000 AND NEW.itemid < 224000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_4 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 224000 AND NEW.itemid < 225000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_5 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 225000 AND NEW.itemid < 226000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_6 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 226000 AND NEW.itemid < 227000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_7 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 227000 AND NEW.itemid < 228000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_8 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 228000 AND NEW.itemid < 229000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_9 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 229000 AND NEW.itemid < 230000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_10 VALUES (NEW.*);
+        ELSE
+            INSERT INTO """ + destinationSchemaName + """.chartevents_null VALUES (NEW.*);
+        END IF;
+        RETURN NULL;
+        END;
+        $$
+        LANGUAGE plpgsql
+        ;
+        """
+    dropTriggerQuery = """DROP TRIGGER IF EXISTS insert_chartevents_trigger
+    ON """ + destinationSchemaName + """.CHARTEVENTS
+    ;
+    """
+    createTriggerQuery = """CREATE TRIGGER insert_chartevents_trigger
+    BEFORE INSERT ON """ + destinationSchemaName + """.CHARTEVENTS
+    FOR EACH ROW EXECUTE PROCEDURE """ + destinationSchemaName + """.chartevents_insert_trigger()
+    ;
+    """
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(dropQuery)
+            cursor.execute(createQuery)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_1")
+            cursor.execute(createChildQuery1)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_2")
+            cursor.execute(createChildQuery2)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_3")
+            cursor.execute(createChildQuery3)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_4")
+            cursor.execute(createChildQuery4)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_5")
+            cursor.execute(createChildQuery5)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_6")
+            cursor.execute(createChildQuery6)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_7")
+            cursor.execute(createChildQuery7)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_8")
+            cursor.execute(createChildQuery8)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_9")
+            cursor.execute(createChildQuery9)
+            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_10")
+            cursor.execute(createChildQuery10)
+            log.info("Creating function: " + destinationSchemaName + ".CHARTEVENTS.chartevents_insert_trigger()")
+            cursor.execute(createFunctionQuery)
+            log.info("Dropping trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
+            cursor.execute(dropTriggerQuery)
+            log.info("Creating trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
+            cursor.execute(createTriggerQuery)
 
     import pandas as pd
 
     log.info("Reading file: " + str(filePath))
     df = pd.read_csv(filePath, sep=fileSeparator)
     dfColumns = [
-        Config.patients['column_mapping']['subject_id'],
-        Config.patients['column_mapping']['hadm_id'],
-        Config.patients['column_mapping']['stay_id'],
-        Config.patients['column_mapping']['charttime'],
-        Config.patients['column_mapping']['storetime'],
-        Config.patients['column_mapping']['itemid'],
-        Config.patients['column_mapping']['value'],
-        Config.patients['column_mapping']['valuenum'],
-        Config.patients['column_mapping']['valueuom'],
-        Config.patients['column_mapping']['warning'],
+        Config.chartevents['column_mapping']['subject_id'],
+        Config.chartevents['column_mapping']['hadm_id'],
+        Config.chartevents['column_mapping']['stay_id'],
+        Config.chartevents['column_mapping']['charttime'],
+        Config.chartevents['column_mapping']['storetime'],
+        Config.chartevents['column_mapping']['itemid'],
+        Config.chartevents['column_mapping']['value'],
+        Config.chartevents['column_mapping']['valuenum'],
+        Config.chartevents['column_mapping']['valueuom'],
+        Config.chartevents['column_mapping']['warning'],
         ]
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='CHARTEVENTS', df=df, dfColumns=dfColumns)
 
@@ -962,7 +969,7 @@ def importCsv(con, destinationSchemaName):
     importAdmissions(
         con=con,
         destinationSchemaName=destinationSchemaName,
-        filePath = Config.admission['file_name'],
+        filePath = Config.admissions['file_name'],
         fileSeparator=','
         )
     importTransfers(
@@ -989,6 +996,22 @@ def importCsv(con, destinationSchemaName):
         filePath = Config.labevents['file_name'],
         fileSeparator=','
         )
+    # i = 'a'
+    # filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+    # importLabEvents(
+    #     con=con,
+    #     destinationSchemaName=destinationSchemaName,
+    #     filePath = filePath + i,
+    #     fileSeparator=','
+    #     )
+    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm']:
+    #     filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+    #     importLabEvents(
+    #         con=con,
+    #         destinationSchemaName=destinationSchemaName,
+    #         filePath = filePath + i,
+    #         fileSeparator=','
+    #         )
     importLabItems(
         con=con,
         destinationSchemaName=destinationSchemaName,
@@ -1049,13 +1072,20 @@ def importCsv(con, destinationSchemaName):
         filePath = Config.datetimeevents['file_name'],
         fileSeparator=','
         )
+    importChartEvents(
+        con=con,
+        destinationSchemaName=destinationSchemaName,
+        filePath = Config.chartevents['file_name'],
+        fileSeparator=','
+        )
+    # filePath = '/superbugai-data/mimiciv/1.0/icu/xaa'
     # importChartEvents(
     #     con=con,
     #     destinationSchemaName=destinationSchemaName,
-    #     filePath = Config.chartevents['file_name'],
+    #     filePath = filePath,
     #     fileSeparator=','
     #     )
-    # for i in ['m', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
+    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
     #     filePath = '/superbugai-data/mimiciv/1.0/icu/xa'
     #     importChartEvents(
     #         con=con,

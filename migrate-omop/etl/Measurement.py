@@ -868,6 +868,212 @@ def createMeasurementAntibioticMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
+def createMeasurements(con, schemaName):
+    log.info("Creating table: " + schemaName + ".cdm_measurement")
+    dropQuery = """drop table if exists """ + schemaName + """.cdm_measurement cascade"""
+    createQuery = """CREATE TABLE """ + schemaName + """.cdm_measurement
+        (
+            measurement_id                INTEGER     not null ,
+            person_id                     INTEGER     not null ,
+            measurement_concept_id        INTEGER     not null ,
+            measurement_date              DATE      not null ,
+            measurement_datetime          TIMESTAMP           ,
+            measurement_time              TEXT             ,
+            measurement_type_concept_id   INTEGER     not null ,
+            operator_concept_id           INTEGER              ,
+            value_as_number               FLOAT            ,
+            value_as_concept_id           INTEGER              ,
+            unit_concept_id               INTEGER              ,
+            range_low                     FLOAT            ,
+            range_high                    FLOAT            ,
+            provider_id                   INTEGER              ,
+            visit_occurrence_id           INTEGER              ,
+            visit_detail_id               INTEGER              ,
+            measurement_source_value      TEXT             ,
+            measurement_source_concept_id INTEGER              ,
+            unit_source_value             TEXT             ,
+            value_source_value            TEXT             ,
+            -- 
+            unit_id                       TEXT,
+            load_table_id                 TEXT,
+            load_row_id                   INTEGER,
+            trace_id                      TEXT  
+        )
+        ;
+        """
+    insertLabeventsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+        SELECT
+            src.measurement_id                      AS measurement_id,
+            per.person_id                           AS person_id,
+            COALESCE(src.target_concept_id, 0)      AS measurement_concept_id,
+            CAST(src.start_datetime AS DATE)        AS measurement_date,
+            src.start_datetime                      AS measurement_datetime,
+            CAST(NULL AS TEXT)                    AS measurement_time,
+            32856                                   AS measurement_type_concept_id, -- OMOP4976929 Lab
+            src.operator_concept_id                 AS operator_concept_id,
+            CAST(src.value_as_number[1] AS FLOAT)    AS value_as_number,  -- to move CAST to mapped/clean
+            CAST(NULL AS INTEGER)                     AS value_as_concept_id,
+            src.unit_concept_id                     AS unit_concept_id,
+            src.range_low                           AS range_low,
+            src.range_high                          AS range_high,
+            CAST(NULL AS INTEGER)                     AS provider_id,
+            vis.visit_occurrence_id                 AS visit_occurrence_id,
+            CAST(NULL AS INTEGER)                     AS visit_detail_id,
+            src.source_code                         AS measurement_source_value,
+            src.source_concept_id                   AS measurement_source_concept_id,
+            src.unit_source_value                   AS unit_source_value,
+            src.value_source_value                  AS value_source_value,
+            --
+            CONCAT('measurement.', src.unit_id)     AS unit_id,
+            src.load_table_id               AS load_table_id,
+            src.load_row_id                 AS load_row_id,
+            src.trace_id                    AS trace_id
+        FROM  
+            """ + schemaName + """.lk_meas_labevents_mapped src -- 107,209 
+        INNER JOIN
+            """ + schemaName + """.cdm_person per -- 110,849
+                ON CAST(src.subject_id AS TEXT) = per.person_source_value
+        INNER JOIN
+            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
+                ON  vis.visit_source_value = 
+                    CONCAT(CAST(src.subject_id AS TEXT), '|', 
+                        COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
+        WHERE
+            src.target_domain_id = 'Measurement' -- 115,272
+        ;
+        """
+    insertCharteventsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+        SELECT
+            src.measurement_id                      AS measurement_id,
+            per.person_id                           AS person_id,
+            COALESCE(src.target_concept_id, 0)      AS measurement_concept_id,
+            CAST(src.start_datetime AS DATE)        AS measurement_date,
+            src.start_datetime                      AS measurement_datetime,
+            CAST(NULL AS TEXT)                    AS measurement_time,
+            src.type_concept_id                     AS measurement_type_concept_id,
+            CAST(NULL AS INTEGER)                     AS operator_concept_id,
+            src.value_as_number                     AS value_as_number,
+            src.value_as_concept_id                 AS value_as_concept_id,
+            src.unit_concept_id                     AS unit_concept_id,
+            CAST(NULL AS INTEGER)                     AS range_low,
+            CAST(NULL AS INTEGER)                     AS range_high,
+            CAST(NULL AS INTEGER)                     AS provider_id,
+            vis.visit_occurrence_id                 AS visit_occurrence_id,
+            CAST(NULL AS INTEGER)                     AS visit_detail_id,
+            src.source_code                         AS measurement_source_value,
+            src.source_concept_id                   AS measurement_source_concept_id,
+            src.unit_source_value                   AS unit_source_value,
+            src.value_source_value                  AS value_source_value,
+            --
+            CONCAT('measurement.', src.unit_id)     AS unit_id,
+            src.load_table_id               AS load_table_id,
+            src.load_row_id                 AS load_row_id,
+            src.trace_id                    AS trace_id
+        FROM  
+            """ + schemaName + """.lk_chartevents_mapped src
+        INNER JOIN
+            """ + schemaName + """.cdm_person per
+                ON CAST(src.subject_id AS TEXT) = per.person_source_value
+        INNER JOIN
+            """ + schemaName + """.cdm_visit_occurrence vis
+                ON  vis.visit_source_value = 
+                    CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
+        WHERE
+            src.target_domain_id = 'Measurement'
+        ;
+        """
+    insertOrganismQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+        SELECT
+            src.measurement_id                      AS measurement_id,
+            per.person_id                           AS person_id,
+            COALESCE(src.target_concept_id, 0)      AS measurement_concept_id,
+            CAST(src.start_datetime AS DATE)        AS measurement_date,
+            src.start_datetime                      AS measurement_datetime,
+            CAST(NULL AS TEXT)                    AS measurement_time,
+            src.type_concept_id                     AS measurement_type_concept_id,
+            CAST(NULL AS INTEGER)                     AS operator_concept_id,
+            CAST(NULL AS FLOAT)                   AS value_as_number,
+            COALESCE(src.value_as_concept_id, 0)    AS value_as_concept_id,
+            CAST(NULL AS INTEGER)                     AS unit_concept_id,
+            CAST(NULL AS INTEGER)                     AS range_low,
+            CAST(NULL AS INTEGER)                     AS range_high,
+            CAST(NULL AS INTEGER)                     AS provider_id,
+            vis.visit_occurrence_id                 AS visit_occurrence_id,
+            CAST(NULL AS INTEGER)                     AS visit_detail_id,
+            src.source_code                         AS measurement_source_value,
+            src.source_concept_id                   AS measurement_source_concept_id,
+            CAST(NULL AS TEXT)                    AS unit_source_value,
+            src.value_source_value                  AS value_source_value,
+            --
+            CONCAT('measurement.', src.unit_id)     AS unit_id,
+            src.load_table_id               AS load_table_id,
+            src.load_row_id                 AS load_row_id,
+            src.trace_id                    AS trace_id
+        FROM  
+            """ + schemaName + """.lk_meas_organism_mapped src
+        INNER JOIN
+            """ + schemaName + """.cdm_person per
+                ON CAST(src.subject_id AS TEXT) = per.person_source_value
+        INNER JOIN
+            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
+                ON  vis.visit_source_value = 
+                    CONCAT(CAST(src.subject_id AS TEXT), '|', 
+                        COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
+        WHERE
+            src.target_domain_id = 'Measurement'
+        ;
+        """
+    insertAntibioticsQuery = """INSERT INTO etl_dataset.cdm_measurement
+        SELECT
+            src.measurement_id                      AS measurement_id,
+            per.person_id                           AS person_id,
+            COALESCE(src.target_concept_id, 0)      AS measurement_concept_id,
+            CAST(src.start_datetime AS DATE)        AS measurement_date,
+            src.start_datetime                      AS measurement_datetime,
+            CAST(NULL AS TEXT)                    AS measurement_time,
+            src.type_concept_id                     AS measurement_type_concept_id,
+            src.operator_concept_id                 AS operator_concept_id, -- dilution comparison
+            src.value_as_number                     AS value_as_number, -- dilution value
+            COALESCE(src.value_as_concept_id, 0)    AS value_as_concept_id, -- resistance (interpretation)
+            CAST(NULL AS INTEGER)                     AS unit_concept_id,
+            CAST(NULL AS INTEGER)                     AS range_low,
+            CAST(NULL AS INTEGER)                     AS range_high,
+            CAST(NULL AS INTEGER)                     AS provider_id,
+            vis.visit_occurrence_id                 AS visit_occurrence_id,
+            CAST(NULL AS INTEGER)                     AS visit_detail_id,
+            src.source_code                         AS measurement_source_value, -- antibiotic name
+            src.source_concept_id                   AS measurement_source_concept_id,
+            CAST(NULL AS TEXT)                    AS unit_source_value,
+            src.value_source_value                  AS value_source_value, -- resistance source value
+            --
+            CONCAT('measurement.', src.unit_id)     AS unit_id,
+            src.load_table_id               AS load_table_id,
+            src.load_row_id                 AS load_row_id,
+            src.trace_id                    AS trace_id
+        FROM  
+            etl_dataset.lk_meas_ab_mapped src
+        INNER JOIN
+            etl_dataset.cdm_person per
+                ON CAST(src.subject_id AS TEXT) = per.person_source_value
+        INNER JOIN
+            etl_dataset.cdm_visit_occurrence vis -- 116,559
+                ON  vis.visit_source_value = 
+                    CONCAT(CAST(src.subject_id AS TEXT), '|', 
+                        COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
+        WHERE
+            src.target_domain_id = 'Measurement'
+        ;
+        """
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(dropQuery)
+            cursor.execute(createQuery)
+            cursor.execute(insertLabeventsQuery)
+            cursor.execute(insertCharteventsQuery)
+            cursor.execute(insertOrganismQuery)
+            cursor.execute(insertAntibioticsQuery)
+
+
 def migrateUnits(con, schemaName):
     createMeasurementOperatorConcept(con = con, schemaName = schemaName)
     createMeasurementUnitTemp(con = con, schemaName = schemaName)
@@ -903,3 +1109,7 @@ def migrateSpecimen(con, schemaName):
     createSpecimenMapped(con = con, schemaName = schemaName)
     createMeasurementOrganismMapped(con = con, schemaName = schemaName)
     createMeasurementAntibioticMapped(con = con, schemaName = schemaName)
+
+
+def migrate(con, schemaName):
+    createMeasurements(con = con, schemaName = schemaName)

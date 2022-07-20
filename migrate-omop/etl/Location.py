@@ -4,7 +4,7 @@ log = logging.getLogger("Standardise")
 
 
 def createLocationCdm(con, schemaName):
-    log.info("Creating CDM table: " + schemaName + ".cdm_location")
+    log.info("Creating table: " + schemaName + ".cdm_location")
     dropQuery = """drop table if exists """ + schemaName + """.cdm_location cascade"""
     createQuery = """CREATE TABLE """ + schemaName + """.cdm_location
         (
