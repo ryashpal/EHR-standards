@@ -33,8 +33,13 @@ schema_name: New schema to host the migrated tables
 Ex:
 
 patients = {
+
     'file_name': Path for the csv file
+    
     'column_mapping': {
+    
         -- CSV column name: Standard column name,
+        
     },
+    
 }
