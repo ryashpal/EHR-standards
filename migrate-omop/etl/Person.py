@@ -72,7 +72,7 @@ def createPersonCdm(con, schemaName):
             year_of_birth             INTEGER   not null ,
             month_of_birth            INTEGER           ,
             day_of_birth              INTEGER           ,
-        birth_DATETIME              TIMESTAMP        ,
+            birth_DATETIME              TIMESTAMP        ,
             race_concept_id           INTEGER   not null,
             ethnicity_concept_id      INTEGER   not null,
             location_id               INTEGER           ,

@@ -1023,7 +1023,7 @@ def createMeasurements(con, schemaName):
             src.target_domain_id = 'Measurement'
         ;
         """
-    insertAntibioticsQuery = """INSERT INTO etl_dataset.cdm_measurement
+    insertAntibioticsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
         SELECT
             src.measurement_id                      AS measurement_id,
             per.person_id                           AS person_id,
@@ -1051,12 +1051,12 @@ def createMeasurements(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            etl_dataset.lk_meas_ab_mapped src
+            """ + schemaName + """.lk_meas_ab_mapped src
         INNER JOIN
-            etl_dataset.cdm_person per
+            """ + schemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            etl_dataset.cdm_visit_occurrence vis -- 116,559
+            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))

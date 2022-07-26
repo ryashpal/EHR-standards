@@ -18,7 +18,7 @@ def createFactRelationship(con, schemaName):
         )
         ;
         """
-    insertS2MQuery = """INSERT INTO etl_dataset.cdm_fact_relationship
+    insertS2MQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
         SELECT
             36                      AS domain_concept_id_1, -- Specimen
             spec.specimen_id        AS fact_id_1,
@@ -27,13 +27,13 @@ def createFactRelationship(con, schemaName):
             32669                   AS relationship_concept_id, -- Specimen to Measurement   Standard
             'fact.spec.test'        AS unit_id
         FROM
-            etl_dataset.lk_specimen_mapped spec
+            """ + schemaName + """.lk_specimen_mapped spec
         INNER JOIN
-            etl_dataset.lk_meas_organism_mapped org
+            """ + schemaName + """.lk_meas_organism_mapped org
                 ON org.trace_id_spec = spec.trace_id
         ;
         """
-    insertM2SQuery = """INSERT INTO etl_dataset.cdm_fact_relationship
+    insertM2SQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             org.measurement_id      AS fact_id_1,
@@ -42,13 +42,13 @@ def createFactRelationship(con, schemaName):
             32668                   AS relationship_concept_id, -- Measurement to Specimen   Standard
             'fact.test.spec'        AS unit_id
         FROM
-            etl_dataset.lk_specimen_mapped spec
+            """ + schemaName + """.lk_specimen_mapped spec
         INNER JOIN
-            etl_dataset.lk_meas_organism_mapped org
+            """ + schemaName + """.lk_meas_organism_mapped org
                 ON org.trace_id_spec = spec.trace_id
         ;
         """
-    insertP2CQuery = """INSERT INTO etl_dataset.cdm_fact_relationship
+    insertP2CQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             org.measurement_id      AS fact_id_1,
@@ -57,13 +57,13 @@ def createFactRelationship(con, schemaName):
             581436                  AS relationship_concept_id, -- Parent to Child Measurement   Standard
             'fact.test.ab'          AS unit_id
         FROM
-            etl_dataset.lk_meas_organism_mapped org
+            """ + schemaName + """.lk_meas_organism_mapped org
         INNER JOIN
-            etl_dataset.lk_meas_ab_mapped ab
+            """ + schemaName + """.lk_meas_ab_mapped ab
                 ON ab.trace_id_org = org.trace_id
         ;
         """
-    insertC2PQuery = """INSERT INTO etl_dataset.cdm_fact_relationship
+    insertC2PQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             ab.measurement_id       AS fact_id_1,
@@ -72,9 +72,9 @@ def createFactRelationship(con, schemaName):
             581437                  AS relationship_concept_id, -- Child to Parent Measurement   Standard
             'fact.ab.test'          AS unit_id
         FROM
-            etl_dataset.lk_meas_organism_mapped org
+            """ + schemaName + """.lk_meas_organism_mapped org
         INNER JOIN
-            etl_dataset.lk_meas_ab_mapped ab
+            """ + schemaName + """.lk_meas_ab_mapped ab
                 ON ab.trace_id_org = org.trace_id
         ;
         """

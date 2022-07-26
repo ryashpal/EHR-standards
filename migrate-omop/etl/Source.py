@@ -36,16 +36,14 @@ def createSource(con, schemaName):
             'https://mimic-iv.mit.edu/docs/'        AS source_documentation_reference,
             'https://github.com/OHDSI/MIMIC/'       AS cdm_etl_reference,
             TO_DATE('2020-09-01', 'YYYY-MM-DD')    AS source_release_date, -- to look up
-            CURRENT_DATE()                          AS cdm_release_date,
+            CURRENT_DATE                            AS cdm_release_date,
             '5.3.1'                                 AS cdm_version,
             v.vocabulary_version                    AS vocabulary_version,
             -- 
             'cdm.source'            AS unit_id,
             'none'                  AS load_table_id,
             1                       AS load_row_id,
-            TO_JSON_TEXT(STRUCT(
-                'mimiciv' AS trace_id
-            ))                                  AS trace_id
+            'mimiciv'               AS trace_id
 
         FROM 
             voc_dataset.vocabulary v

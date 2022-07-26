@@ -17,7 +17,7 @@ def createDeviceExposure(con, schemaName):
             device_exposure_end_datetime    TIMESTAMP             ,
             device_type_concept_id          INTEGER       not null ,
             unique_device_id                TEXT               ,
-            quantity                        INTEGER                ,
+            quantity                        DOUBLE PRECISION                ,
             provider_id                     INTEGER                ,
             visit_occurrence_id             INTEGER                ,
             visit_detail_id                 INTEGER                ,
@@ -87,7 +87,7 @@ def createDeviceExposure(con, schemaName):
             WHEN ROUND(src.value_as_number) = src.value_as_number THEN src.value_as_number
             ELSE NULL
             END
-                AS INTEGER)                               AS quantity,
+                AS DOUBLE PRECISION)                               AS quantity,
             CAST(NULL AS INTEGER)                         AS provider_id,
             vis.visit_occurrence_id                     AS visit_occurrence_id,
             CAST(NULL AS INTEGER)                         AS visit_detail_id,

@@ -145,29 +145,29 @@ def performETL(con):
     # # 21. Drug Exposure
     # Drug.migrate(con=con, schemaName=Config.schema_name)
 
-    # 22. Device Exposure
-    DeviceExposure.migrate(con=con, schemaName=Config.schema_name)
+    # # 22. Device Exposure
+    # DeviceExposure.migrate(con=con, schemaName=Config.schema_name)
 
-    # 23. Observation
-    Observation.migrate(con=con, schemaName=Config.schema_name)
+    # # 23. Observation
+    # Observation.migrate(con=con, schemaName=Config.schema_name)
 
-    # 24. Observation Period
-    Observation.migratePeriod(con=con, schemaName=Config.schema_name)
+    # # 24. Observation Period
+    # Observation.migratePeriod(con=con, schemaName=Config.schema_name)
 
-    # 25. Person Final
-    Person.migrateFinal(con=con, schemaName=Config.schema_name)
+    # # 25. Person Final
+    # Person.migrateFinal(con=con, schemaName=Config.schema_name)
 
-    # 26. Fact Relationship
-    Relationship.migrate(con=con, schemaName=Config.schema_name)
+    # # 26. Fact Relationship
+    # Relationship.migrate(con=con, schemaName=Config.schema_name)
 
-    # 27. Condition Era
-    ConditionOccurrence.migrateConditionEra(con=con, schemaName=Config.schema_name)
+    # # 27. Condition Era
+    # ConditionOccurrence.migrateConditionEra(con=con, schemaName=Config.schema_name)
 
-    # 28. Drug Era
-    Drug.migrateDrugEra(con=con, schemaName=Config.schema_name)
+    # # 28. Drug Era
+    # Drug.migrateDrugEra(con=con, schemaName=Config.schema_name)
 
-    # 29. Dose Era
-    Drug.migrateDoseEra(con=con, schemaName=Config.schema_name)
+    # # 29. Dose Era
+    # Drug.migrateDoseEra(con=con, schemaName=Config.schema_name)
 
     # 30. 
     # Not migrated
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # dropSchema(con=con, schemaName=Config.schema_name)
     # createSchema(con=con, schemaName=Config.schema_name)
 
-    # migrateLookupTables(con=con)
+    # createLookupTables(con=con)
 
     # importFromCsv(con=con)
 
@@ -201,6 +201,6 @@ if __name__ == "__main__":
 
     performETL(con=con)
 
-    unloadData(con=con)
+    # unloadData(con=con)
 
     log.info("End")
