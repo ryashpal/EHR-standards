@@ -356,15 +356,35 @@
 
       dataJson = {
         "links": [
-          { "source": "mimiciv.patients", "target": "omop.src_patients", "value": "382278" },
-          { "source": "omop.src_patients", "target": "omop.cdm_person", "value": "382278" },
-          { "source": "omop.cdm_person", "target": "omop.person", "value": "337942" },
+          { "source": "mimiciv.microbiologyevents", "target": "omop.src_microbiologyevents", "value": "1147170" },
+          { "source": "omop.src_microbiologyevents", "target": "omop.lk_meas_ab_clean", "value": "1147170" },
+          { "source": "omop.lk_meas_ab_clean", "target": "omop.lk_meas_ab_mapped", "value": "1147170" },
+          { "source": "omop.lk_meas_ab_mapped", "target": "omop.cdm_measurement", "value": "1147170" },
+          { "source": "mimiciv.chartevents", "target": "omop.src_chartevents", "value": "329499788" },
+          { "source": "omop.src_chartevents", "target": "omop.lk_chartevents_clean", "value": "329499788" },
+          { "source": "omop.lk_chartevents_clean", "target": "omop.lk_chartevents_mapped", "value": "328494547" },
+          { "source": "omop.lk_chartevents_mapped", "target": "omop.cdm_measurement", "value": "96694264" },
+          { "source": "mimiciv.labevents", "target": "omop.src_labevents", "value": "122103667" },
+          { "source": "omop.src_labevents", "target": "omop.lk_meas_labevents_clean", "value": "122103667" },
+          { "source": "omop.lk_meas_labevents_clean", "target": "omop.lk_meas_labevents_mapped", "value": "122103667" },
+          { "source": "omop.lk_meas_labevents_mapped", "target": "omop.cdm_measurement", "value": "122103667" },
+          { "source": "omop.cdm_measurement", "target": "omop.measurement", "value": "218784761" },
         ],
         "nodes": [
-          { "name": "mimiciv.patients" },
-          { "name": "omop.src_patients" },
-          { "name": "omop.cdm_person" },
-          { "name": "omop.person" },
+          { "name": "omop.lk_meas_labevents_mapped" },
+          { "name": "omop.lk_meas_labevents_clean" },
+          { "name": "omop.src_labevents" },
+          { "name": "mimiciv.labevents" },
+          { "name": "omop.lk_chartevents_mapped" },
+          { "name": "omop.lk_chartevents_clean" },
+          { "name": "omop.src_chartevents" },
+          { "name": "mimiciv.chartevents" },
+          { "name": "omop.lk_meas_ab_mapped" },
+          { "name": "omop.lk_meas_ab_clean" },
+          { "name": "omop.src_microbiologyevents" },
+          { "name": "mimiciv.microbiologyevents" },
+          { "name": "omop.cdm_measurement" },
+          { "name": "omop.measurement" },
         ]
       }
 

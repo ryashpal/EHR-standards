@@ -959,7 +959,49 @@ def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
     __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='CHARTEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importCsv(con, destinationSchemaName):
+def importConcept(con, destinationSchemaName, filePath, fileSeparator):
+
+    log.info("Creating table: " + destinationSchemaName + ".concept")
+
+    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.concept CASCADE"""
+    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept
+        (
+            SUBJECT_ID INT NOT NULL,
+            HADM_ID INT NOT NULL,
+            STAY_ID INT NOT NULL,
+            CHARTTIME TIMESTAMP(0) NOT NULL,
+            STORETIME TIMESTAMP(0) ,
+            ITEMID INT NOT NULL,
+            VALUE VARCHAR(160) ,
+            VALUENUM DOUBLE PRECISION,
+            VALUEUOM VARCHAR(20),
+            WARNING SMALLINT NOT NULL
+        )
+        ;
+        """
+    with con:
+        with con.cursor() as cursor:
+            cursor.execute(dropQuery)
+            cursor.execute(createQuery)
+
+    import pandas as pd
+
+    df = pd.read_csv(filePath, sep=fileSeparator)
+    dfColumns = [
+        Config.datetimeevents['column_mapping']['subject_id'],
+        Config.datetimeevents['column_mapping']['hadm_id'],
+        Config.datetimeevents['column_mapping']['stay_id'],
+        Config.datetimeevents['column_mapping']['charttime'],
+        Config.datetimeevents['column_mapping']['storetime'],
+        Config.datetimeevents['column_mapping']['itemid'],
+        Config.datetimeevents['column_mapping']['value'],
+        Config.datetimeevents['column_mapping']['valueuom'],
+        Config.datetimeevents['column_mapping']['warning'],
+        ]
+    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DATETIMEEVENTS', df=df, dfColumns=dfColumns)
+
+
+def importDataCsv(con, destinationSchemaName):
     importPatients(
         con=con,
         destinationSchemaName=destinationSchemaName,
@@ -1093,3 +1135,12 @@ def importCsv(con, destinationSchemaName):
     #         filePath = filePath + i,
     #         fileSeparator=','
     #         )
+
+
+def importAthenaCsv(con, destinationSchemaName):
+    importConcept(
+        con=con,
+        destinationSchemaName=destinationSchemaName,
+        filePath = Config.athena.concept['file_name'],
+        fileSeparator=','
+        )

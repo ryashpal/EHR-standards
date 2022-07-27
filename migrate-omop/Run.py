@@ -67,12 +67,12 @@ def createSchema(con, schemaName):
             cursor.execute(createSchemaQuery)
 
 
-def createLookupTables(con):
-    Lookup.migrate(con=con, destinationSchemaName=Config.schema_name)
+def importAthenaCsv(con):
+    Import.importAthenaCsv(con=con, destinationSchemaName=Config.schema_name)
 
 
-def importFromCsv(con):
-    Import.importCsv(con=con, destinationSchemaName=Config.schema_name)
+def importDataCsv(con):
+    Import.importDataCsv(con=con, destinationSchemaName=Config.schema_name)
 
 
 def stageData(con):
