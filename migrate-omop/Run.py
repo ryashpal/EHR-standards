@@ -199,8 +199,10 @@ if __name__ == "__main__":
 
     # stageData(con=con)
 
-    performETL(con=con)
+    # performETL(con=con)
 
     # unloadData(con=con)
+
+    Lookup.migrate(con=con)
 
     log.info("End")

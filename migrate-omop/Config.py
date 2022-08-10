@@ -10,6 +10,21 @@ sql_db_name = 'mimic4'
 
 schema_name = 'omop_migration_test'
 
+lookup_schema_name = 'voc_dataset_test'
+
+vocabulary = {
+    'concept': '/superbugai-data/vocabulary_download_v5/CONCEPT.csv',
+    'vocabulary': '/superbugai-data/vocabulary_download_v5/VOCABULARY.csv',
+    'domain': '/superbugai-data/vocabulary_download_v5/DOMAIN.csv',
+    'concept_class': '/superbugai-data/vocabulary_download_v5/CONCEPT_CLASS.csv',
+    'concept_relationship': '/superbugai-data/vocabulary_download_v5/CONCEPT_RELATIONSHIP.csv',
+    'relationship': '/superbugai-data/vocabulary_download_v5/RELATIONSHIP.csv',
+    'concept_synonym': '/superbugai-data/vocabulary_download_v5/CONCEPT_SYNONYM.csv',
+    'concept_ancestor': '/superbugai-data/vocabulary_download_v5/CONCEPT_ANCESTOR.csv',
+    'drug_strength': '/superbugai-data/vocabulary_download_v5/DRUG_STRENGTH.csv',
+    'tmp_custom_mapping': '/superbugai-data/vocabulary_download_v5/tmp_custom_mapping.csv',
+}
+
 patients = {
     'file_name': '/superbugai-data/mimiciv/1.0/core/patients.csv',
     'column_mapping': {
