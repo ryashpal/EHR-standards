@@ -196,13 +196,13 @@ if __name__ == "__main__":
     log.info("Parsing command line arguments")
 
     parser = argparse.ArgumentParser(description='Migrate EHR to OMOP-CDM')
-    parser.add_argument('-l', '--create_lookup', action='store_false',
+    parser.add_argument('-l', '--create_lookup', action='store_true',
                         help='Create lookup by importing Athena vocabulary and custom mapping')
-    parser.add_argument('-f', '--import_file', action='store_false',
+    parser.add_argument('-f', '--import_file', action='store_true',
                         help='Import EHR from a csv files')
-    parser.add_argument('-e', '--perform_etl', action='store_false',
+    parser.add_argument('-e', '--perform_etl', action='store_true',
                         help='Perform migration Extract-Transform-Load (ETL) operations')
-    parser.add_argument('-u', '--unload', action='store_false',
+    parser.add_argument('-u', '--unload', action='store_true',
                         help='Unload data to CDM schema')
 
     args = parser.parse_args()
