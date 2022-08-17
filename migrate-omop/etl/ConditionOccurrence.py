@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createConditionOccurrence(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_condition_occurrence")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_condition_occurrence cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_condition_occurrence
+def createConditionOccurrence(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_condition_occurrence")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_condition_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_condition_occurrence
         (
             condition_occurrence_id       INTEGER     not null ,
             person_id                     INTEGER     not null ,
@@ -32,7 +32,7 @@ def createConditionOccurrence(con, schemaName):
         )
         ;
         """
-    insertDiagnosesQuery = """INSERT INTO """ + schemaName + """.cdm_condition_occurrence
+    insertDiagnosesQuery = """INSERT INTO """ + etlSchemaName + """.cdm_condition_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int       AS condition_occurrence_id,
             per.person_id                           AS person_id,
@@ -56,19 +56,19 @@ def createConditionOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_diagnoses_icd_mapped src
+            """ + etlSchemaName + """.lk_diagnoses_icd_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Condition'
         ;
         """
-    insertChartevents1Query = """INSERT INTO """ + schemaName + """.cdm_condition_occurrence
+    insertChartevents1Query = """INSERT INTO """ + etlSchemaName + """.cdm_condition_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int       AS condition_occurrence_id,
             per.person_id                           AS person_id,
@@ -92,19 +92,19 @@ def createConditionOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_condition_mapped src
+            """ + etlSchemaName + """.lk_chartevents_condition_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Condition'
         ;
         """
-    insertChartevents2Query = """INSERT INTO """ + schemaName + """.cdm_condition_occurrence
+    insertChartevents2Query = """INSERT INTO """ + etlSchemaName + """.cdm_condition_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int       AS condition_occurrence_id,
             per.person_id                           AS person_id,
@@ -128,12 +128,12 @@ def createConditionOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_mapped src
+            """ + etlSchemaName + """.lk_chartevents_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
@@ -149,10 +149,10 @@ def createConditionOccurrence(con, schemaName):
             cursor.execute(insertChartevents2Query)
 
 
-def createTargetCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_target_condition")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_target_condition cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_target_condition
+def createTargetCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_target_condition")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_target_condition cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_target_condition
         AS SELECT
             co.condition_occurrence_id                                              AS condition_occurrence_id,
             co.person_id                                                            AS person_id,
@@ -167,7 +167,7 @@ def createTargetCondition(con, schemaName):
             -- - to set condition_era_end_date to same condition_era_start_date
                 -- or condition_era_start_date + INTERVAL '1 day', when condition_end_date IS NULL
         FROM
-            """ + schemaName + """.cdm_condition_occurrence co
+            """ + etlSchemaName + """.cdm_condition_occurrence co
         WHERE
             co.condition_concept_id != 0
         ;
@@ -178,10 +178,10 @@ def createTargetCondition(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempDatesUnCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_dates_un_condition")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_dates_un_condition cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_dates_un_condition
+def createTempDatesUnCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_dates_un_condition")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_dates_un_condition cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_dates_un_condition
             AS SELECT
                 person_id                               AS person_id,
                 condition_concept_id                    AS condition_concept_id,
@@ -194,7 +194,7 @@ def createTempDatesUnCondition(con, schemaName):
                     ORDER BY
                         condition_start_date)               AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_target_condition
+                """ + etlSchemaName + """.tmp_target_condition
         UNION ALL
             SELECT
                 person_id                                             AS person_id,
@@ -203,7 +203,7 @@ def createTempDatesUnCondition(con, schemaName):
                 1                                                     AS event_type,
                 NULL                                                  AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_target_condition
+                """ + etlSchemaName + """.tmp_target_condition
         ;
         """
     with con:
@@ -212,10 +212,10 @@ def createTempDatesUnCondition(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempDatesRowsCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_dates_rows_condition")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_dates_rows_condition cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_dates_rows_condition
+def createTempDatesRowsCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_dates_rows_condition")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_dates_rows_condition cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_dates_rows_condition
         AS SELECT
             person_id                       AS person_id,
             condition_concept_id            AS condition_concept_id,
@@ -240,7 +240,7 @@ def createTempDatesRowsCondition(con, schemaName):
                     event_type)             AS overall_ord
                 -- this re-numbers the inner UNION so all rows are numbered ordered by the event date
         FROM
-            """ + schemaName + """.tmp_dates_un_condition
+            """ + etlSchemaName + """.tmp_dates_un_condition
         ;
         """
     with con:
@@ -249,16 +249,16 @@ def createTempDatesRowsCondition(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempEnddatesCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_enddates_condition")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_enddates_condition cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_enddates_condition
+def createTempEnddatesCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_enddates_condition")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_enddates_condition cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_enddates_condition
         AS SELECT
             person_id                                       AS person_id,
             condition_concept_id                            AS condition_concept_id,
             event_date - INTERVAL '30 DAY'          AS end_date  -- unpad the end date
         FROM
-            """ + schemaName + """.tmp_dates_rows_condition e
+            """ + etlSchemaName + """.tmp_dates_rows_condition e
         WHERE
             (2 * e.start_ordinal) - e.overall_ord = 0
         ;
@@ -269,19 +269,19 @@ def createTempEnddatesCondition(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_conditionends")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_conditionends cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_conditionends
+def createTempCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_conditionends")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_conditionends cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_conditionends
         AS SELECT
             c.person_id                             AS person_id,
             c.condition_concept_id                  AS condition_concept_id,
             c.condition_start_date                  AS condition_start_date,
             MIN(e.end_date)                         AS era_end_date
         FROM
-            """ + schemaName + """.tmp_target_condition c
+            """ + etlSchemaName + """.tmp_target_condition c
         JOIN
-            """ + schemaName + """.tmp_enddates_condition e
+            """ + etlSchemaName + """.tmp_enddates_condition e
                 ON  c.person_id            = e.person_id
                 AND c.condition_concept_id = e.condition_concept_id
                 AND e.end_date             >= c.condition_start_date
@@ -298,10 +298,10 @@ def createTempCondition(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createCondition(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_condition_era")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_condition_era cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_condition_era
+def createCondition(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_condition_era")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_condition_era cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_condition_era
         (
             condition_era_id            INTEGER     not null ,
             person_id                   INTEGER     not null ,
@@ -316,7 +316,7 @@ def createCondition(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_condition_era
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_condition_era
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS condition_era_id,
             person_id                                       AS person_id,
@@ -329,7 +329,7 @@ def createCondition(con, schemaName):
             CAST(NULL AS TEXT)                            AS load_table_id,
             CAST(NULL AS INTEGER)                             AS load_row_id
         FROM
-            """ + schemaName + """.tmp_conditionends
+            """ + etlSchemaName + """.tmp_conditionends
         GROUP BY
             person_id,
             condition_concept_id,
@@ -346,13 +346,13 @@ def createCondition(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def dropTempTables(con, schemaName):
+def dropTempTables(con, etlSchemaName):
     log.info("Dropping temp tables")
-    dropQuery1 = """drop table if exists """ + schemaName + """.cdm_condition_era cascade"""
-    dropQuery2 = """drop table if exists """ + schemaName + """.tmp_enddates_condition cascade"""
-    dropQuery3 = """drop table if exists """ + schemaName + """.tmp_dates_rows_condition cascade"""
-    dropQuery4 = """drop table if exists """ + schemaName + """.tmp_dates_un_condition cascade"""
-    dropQuery5 = """drop table if exists """ + schemaName + """.tmp_target_condition cascade"""
+    dropQuery1 = """drop table if exists """ + etlSchemaName + """.cdm_condition_era cascade"""
+    dropQuery2 = """drop table if exists """ + etlSchemaName + """.tmp_enddates_condition cascade"""
+    dropQuery3 = """drop table if exists """ + etlSchemaName + """.tmp_dates_rows_condition cascade"""
+    dropQuery4 = """drop table if exists """ + etlSchemaName + """.tmp_dates_un_condition cascade"""
+    dropQuery5 = """drop table if exists """ + etlSchemaName + """.tmp_target_condition cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery1)
@@ -362,15 +362,15 @@ def dropTempTables(con, schemaName):
             cursor.execute(dropQuery5)
 
 
-def migrate(con, schemaName):
-    createConditionOccurrence(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createConditionOccurrence(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateConditionEra(con, schemaName):
-    createTargetCondition(con = con, schemaName = schemaName)
-    createTempDatesUnCondition(con = con, schemaName = schemaName)
-    createTempDatesRowsCondition(con = con, schemaName = schemaName)
-    createTempEnddatesCondition(con = con, schemaName = schemaName)
-    createTempCondition(con = con, schemaName = schemaName)
-    createCondition(con = con, schemaName = schemaName)
-    dropTempTables(con = con, schemaName = schemaName)
+def migrateConditionEra(con, etlSchemaName):
+    createTargetCondition(con = con, etlSchemaName = etlSchemaName)
+    createTempDatesUnCondition(con = con, etlSchemaName = etlSchemaName)
+    createTempDatesRowsCondition(con = con, etlSchemaName = etlSchemaName)
+    createTempEnddatesCondition(con = con, etlSchemaName = etlSchemaName)
+    createTempCondition(con = con, etlSchemaName = etlSchemaName)
+    createCondition(con = con, etlSchemaName = etlSchemaName)
+    dropTempTables(con = con, etlSchemaName = etlSchemaName)

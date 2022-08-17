@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createSource(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_cdm_source")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_cdm_source cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_cdm_source
+def createSource(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_cdm_source")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_cdm_source cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_cdm_source
         (
             cdm_source_name                 TEXT        not null ,
             cdm_source_abbreviation         TEXT             ,
@@ -26,7 +26,7 @@ def createSource(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_cdm_source
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_cdm_source
         SELECT
             'MIMIC IV'                              AS cdm_source_name,
             'mimiciv'                               AS cdm_source_abbreviation,
@@ -58,5 +58,5 @@ def createSource(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migrate(con, schemaName):
-    createSource(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createSource(con = con, etlSchemaName = etlSchemaName)

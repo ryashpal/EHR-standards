@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createLocationCdm(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_location")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_location cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_location
+def createLocationCdm(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_location")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_location cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_location
         (
             location_id           INTEGER     not null ,
             address_1             TEXT             ,
@@ -24,7 +24,7 @@ def createLocationCdm(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_location
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_location
         SELECT
             1                           AS location_id,
             CAST(NULL AS TEXT)        AS address_1,
@@ -48,5 +48,5 @@ def createLocationCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migrate(con, schemaName):
-    createLocationCdm(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createLocationCdm(con = con, etlSchemaName = etlSchemaName)

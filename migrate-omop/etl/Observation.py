@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createObservationClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_observation_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_observation_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_observation_clean AS
+def createObservationClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_observation_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_observation_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_observation_clean AS
         -- rule 1, insurance
         SELECT
             src.subject_id                  AS subject_id,
@@ -22,7 +22,7 @@ def createObservationClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.src_admissions src -- adm
+            """ + etlSchemaName + """.src_admissions src -- adm
         WHERE
             src.insurance IS NOT NULL
 
@@ -42,7 +42,7 @@ def createObservationClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.src_admissions src -- adm
+            """ + etlSchemaName + """.src_admissions src -- adm
         WHERE
             src.marital_status IS NOT NULL
 
@@ -62,12 +62,12 @@ def createObservationClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.src_admissions src -- adm
+            """ + etlSchemaName + """.src_admissions src -- adm
         WHERE
             src.language IS NOT NULL
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.lk_observation_clean
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.lk_observation_clean
         SELECT
             src.subject_id                  AS subject_id,
             src.hadm_id                     AS hadm_id,
@@ -81,9 +81,9 @@ def createObservationClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.src_drgcodes src -- drg
+            """ + etlSchemaName + """.src_drgcodes src -- drg
         INNER JOIN
-            """ + schemaName + """.src_admissions adm
+            """ + etlSchemaName + """.src_admissions adm
                 ON src.hadm_id = adm.hadm_id
         WHERE
             src.description IS NOT NULL
@@ -96,10 +96,10 @@ def createObservationClean(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def createObsAdmissionsConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_obs_admissions_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_obs_admissions_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_obs_admissions_concept AS
+def createObsAdmissionsConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_obs_admissions_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_obs_admissions_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_obs_admissions_concept AS
         SELECT DISTINCT
             src.value_as_string         AS source_code,
             src.source_vocabulary_id    AS source_vocabulary_id,
@@ -108,7 +108,7 @@ def createObsAdmissionsConcept(con, schemaName):
             vc2.domain_id               AS target_domain_id,
             vc2.concept_id              AS target_concept_id
         FROM
-            """ + schemaName + """.lk_observation_clean src
+            """ + etlSchemaName + """.lk_observation_clean src
         LEFT JOIN
             voc_dataset.concept vc
                 ON src.value_as_string = vc.concept_code
@@ -132,10 +132,10 @@ def createObsAdmissionsConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createObservationMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_observation_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_observation_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_observation_mapped AS
+def createObservationMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_observation_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_observation_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_observation_mapped AS
         SELECT
             src.hadm_id                             AS hadm_id, -- to visit
             src.subject_id                          AS subject_id, -- to person
@@ -152,9 +152,9 @@ def createObservationMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_observation_clean src
+            """ + etlSchemaName + """.lk_observation_clean src
         LEFT JOIN
-            """ + schemaName + """.lk_obs_admissions_concept lc
+            """ + etlSchemaName + """.lk_obs_admissions_concept lc
                 ON src.value_as_string = lc.source_code
                 AND src.source_vocabulary_id = lc.source_vocabulary_id
         ;
@@ -165,10 +165,10 @@ def createObservationMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createObservation(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_observation")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_observation cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_observation
+def createObservation(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_observation")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_observation cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_observation
         (
             observation_id                INTEGER     not null ,
             person_id                     INTEGER     not null ,
@@ -196,7 +196,7 @@ def createObservation(con, schemaName):
         )
         ;
         """
-    insertObservationQuery = """INSERT INTO """ + schemaName + """.cdm_observation
+    insertObservationQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS observation_id,
             per.person_id                               AS person_id,
@@ -225,19 +225,19 @@ def createObservation(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_observation_mapped src
+            """ + etlSchemaName + """.lk_observation_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Observation'
         ;
         """
-    insertCharteventsQuery = """INSERT INTO """ + schemaName + """.cdm_observation
+    insertCharteventsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation
         SELECT
             src.measurement_id                          AS observation_id, -- id is generated already
             per.person_id                               AS person_id,
@@ -266,19 +266,19 @@ def createObservation(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_mapped src
+            """ + etlSchemaName + """.lk_chartevents_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Observation'
         ;
         """
-    insertProcedureQuery = """INSERT INTO """ + schemaName + """.cdm_observation
+    insertProcedureQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS observation_id,
             per.person_id                               AS person_id,
@@ -304,19 +304,19 @@ def createObservation(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_procedure_mapped src
+            """ + etlSchemaName + """.lk_procedure_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Observation'
         ;
         """
-    insertDiagnosisQuery = """INSERT INTO """ + schemaName + """.cdm_observation
+    insertDiagnosisQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS observation_id,
             per.person_id                               AS person_id,
@@ -342,19 +342,19 @@ def createObservation(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_diagnoses_icd_mapped src
+            """ + etlSchemaName + """.lk_diagnoses_icd_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Observation'
         ;
         """
-    insertSpecimenQuery = """INSERT INTO """ + schemaName + """.cdm_observation
+    insertSpecimenQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS observation_id,
             per.person_id                               AS person_id,
@@ -380,12 +380,12 @@ def createObservation(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped src
+            """ + etlSchemaName + """.lk_specimen_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
@@ -404,113 +404,113 @@ def createObservation(con, schemaName):
             cursor.execute(insertSpecimenQuery)
 
 
-def createObservationPeriodClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_observation_period_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_observation_period_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_observation_period_clean AS
+def createObservationPeriodClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_observation_period_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_observation_period_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_observation_period_clean AS
         SELECT
             src.person_id               AS person_id,
             MIN(src.visit_start_date)   AS start_date,
             MAX(src.visit_end_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_visit_occurrence src
+            """ + etlSchemaName + """.cdm_visit_occurrence src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertConditionQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertConditionQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.condition_start_date)   AS start_date,
             MAX(src.condition_end_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_condition_occurrence src
+            """ + etlSchemaName + """.cdm_condition_occurrence src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertProcedureQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertProcedureQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.procedure_date)   AS start_date,
             MAX(src.procedure_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_procedure_occurrence src
+            """ + etlSchemaName + """.cdm_procedure_occurrence src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertDrugExposureQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertDrugExposureQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.drug_exposure_start_date)   AS start_date,
             MAX(src.drug_exposure_end_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_drug_exposure src
+            """ + etlSchemaName + """.cdm_drug_exposure src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertDeviceExposureQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertDeviceExposureQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.device_exposure_start_date)   AS start_date,
             MAX(src.device_exposure_end_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_device_exposure src
+            """ + etlSchemaName + """.cdm_device_exposure src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertMeasurementQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertMeasurementQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.measurement_date)   AS start_date,
             MAX(src.measurement_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_measurement src
+            """ + etlSchemaName + """.cdm_measurement src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertSpecimenQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertSpecimenQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.specimen_date)   AS start_date,
             MAX(src.specimen_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_specimen src
+            """ + etlSchemaName + """.cdm_specimen src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertObservationQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertObservationQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.observation_date)   AS start_date,
             MAX(src.observation_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_observation src
+            """ + etlSchemaName + """.cdm_observation src
         GROUP BY
             src.person_id, src.unit_id
         ;
         """
-    insertDeathQuery = """INSERT INTO """ + schemaName + """.tmp_observation_period_clean
+    insertDeathQuery = """INSERT INTO """ + etlSchemaName + """.tmp_observation_period_clean
         SELECT
             src.person_id               AS person_id,
             MIN(src.death_date)         AS start_date,
             MAX(src.death_date)         AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.cdm_death src
+            """ + etlSchemaName + """.cdm_death src
         GROUP BY
             src.person_id, src.unit_id
         ;
@@ -529,17 +529,17 @@ def createObservationPeriodClean(con, schemaName):
             cursor.execute(insertDeathQuery)
 
 
-def createTempObservationPeriod(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_observation_period")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_observation_period cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_observation_period AS
+def createTempObservationPeriod(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_observation_period")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_observation_period cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_observation_period AS
         SELECT
             src.person_id               AS person_id,
             MIN(src.start_date)   AS start_date,
             MAX(src.end_date)     AS end_date,
             src.unit_id                 AS unit_id
         FROM
-            """ + schemaName + """.tmp_observation_period_clean src
+            """ + etlSchemaName + """.tmp_observation_period_clean src
         GROUP BY
             src.person_id, src.unit_id
         ;
@@ -550,10 +550,10 @@ def createTempObservationPeriod(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createObservationPeriod(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_observation_period")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_observation_period cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_observation_period
+def createObservationPeriod(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_observation_period")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_observation_period cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_observation_period
         (
             observation_period_id             INTEGER   not null ,
             person_id                         INTEGER   not null ,
@@ -568,7 +568,7 @@ def createObservationPeriod(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_observation_period
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_observation_period
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int          AS observation_period_id,
             src.person_id                               AS person_id,
@@ -581,7 +581,7 @@ def createObservationPeriod(con, schemaName):
             0                                           AS load_row_id,
             CAST(NULL AS TEXT)                        AS trace_id
         FROM 
-            """ + schemaName + """.tmp_observation_period src
+            """ + etlSchemaName + """.tmp_observation_period src
         GROUP BY
             src.person_id
         ;
@@ -593,17 +593,17 @@ def createObservationPeriod(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migrateLookup(con, schemaName):
-    createObservationClean(con = con, schemaName = schemaName)
-    createObsAdmissionsConcept(con = con, schemaName = schemaName)
-    createObservationMapped(con = con, schemaName = schemaName)
+def migrateLookup(con, etlSchemaName):
+    createObservationClean(con = con, etlSchemaName = etlSchemaName)
+    createObsAdmissionsConcept(con = con, etlSchemaName = etlSchemaName)
+    createObservationMapped(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrate(con, schemaName):
-    createObservation(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createObservation(con = con, etlSchemaName = etlSchemaName)
 
 
-def migratePeriod(con, schemaName):
-    createObservationPeriodClean(con = con, schemaName = schemaName)
-    createTempObservationPeriod(con = con, schemaName = schemaName)
-    createObservationPeriod(con = con, schemaName = schemaName)
+def migratePeriod(con, etlSchemaName):
+    createObservationPeriodClean(con = con, etlSchemaName = etlSchemaName)
+    createTempObservationPeriod(con = con, etlSchemaName = etlSchemaName)
+    createObservationPeriod(con = con, etlSchemaName = etlSchemaName)

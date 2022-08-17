@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createDeviceExposure(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_device_exposure")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_device_exposure cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_device_exposure
+def createDeviceExposure(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_device_exposure")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_device_exposure cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_device_exposure
         (
             device_exposure_id              INTEGER       not null ,
             person_id                       INTEGER       not null ,
@@ -31,7 +31,7 @@ def createDeviceExposure(con, schemaName):
         )
         ;
         """
-    insertDrugsQuery = """INSERT INTO """ + schemaName + """.cdm_device_exposure
+    insertDrugsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_device_exposure
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS device_exposure_id,
             per.person_id                               AS person_id,
@@ -59,19 +59,19 @@ def createDeviceExposure(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_drug_mapped src
+            """ + etlSchemaName + """.lk_drug_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Device'
         ;
         """
-    insertCharteventsQuery = """INSERT INTO """ + schemaName + """.cdm_device_exposure
+    insertCharteventsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_device_exposure
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS device_exposure_id,
             per.person_id                               AS person_id,
@@ -99,12 +99,12 @@ def createDeviceExposure(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_mapped src
+            """ + etlSchemaName + """.lk_chartevents_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
@@ -119,5 +119,5 @@ def createDeviceExposure(con, schemaName):
             cursor.execute(insertCharteventsQuery)
 
 
-def migrate(con, schemaName):
-    createDeviceExposure(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createDeviceExposure(con = con, etlSchemaName = etlSchemaName)

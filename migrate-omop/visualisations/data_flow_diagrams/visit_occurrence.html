@@ -362,6 +362,12 @@
           { "source": "omop.src_admissions", "target": "omop.lk_admissions_clean", "value": "523740" },
           { "source": "mimiciv.admissions", "target": "omop.src_admissions", "value": "523740" },
           { "source": "omop.lk_visit_no_hadm_dist", "target": "omop.lk_visit_clean", "value": "1935616" },
+          { "source": "mimiciv.admissions", "target": "omop.lk_visit_concept(admission_type)", "value": "1000" },
+          { "source": "omop.lk_visit_concept(admission_type)", "target": "omop.visit_occurrence", "value": "1000" },
+          { "source": "mimiciv.admissions", "target": "omop.lk_visit_concept(admission_location)", "value": "1000" },
+          { "source": "omop.lk_visit_concept(admission_location)", "target": "omop.visit_occurrence", "value": "1000" },
+          { "source": "mimiciv.admissions", "target": "omop.lk_visit_concept(discharge_location)", "value": "1000" },
+          { "source": "omop.lk_visit_concept(discharge_location)", "target": "omop.visit_occurrence", "value": "1000" },
         ],
         "nodes": [
           { "name": "omop.lk_visit_no_hadm_dist" },
@@ -371,6 +377,9 @@
           { "name": "omop.lk_visit_clean" },
           { "name": "omop.cdm_visit_occurrence" },
           { "name": "omop.visit_occurrence" },
+          { "name": "omop.lk_visit_concept(admission_type)" },
+          { "name": "omop.lk_visit_concept(admission_location)" },
+          { "name": "omop.lk_visit_concept(discharge_location)" },
         ]
       }
 

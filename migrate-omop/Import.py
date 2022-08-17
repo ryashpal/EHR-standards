@@ -28,12 +28,12 @@ def __saveDataframe(con, destinationSchemaName, destinationTableName, df, dfColu
             cur.close()
 
 
-def importPatients(con, destinationSchemaName, filePath, fileSeparator):
+def importPatients(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".PATIENTS")
+    log.info("Creating table: " + etlSchemaName + ".PATIENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.PATIENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.PATIENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.PATIENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.PATIENTS
         (
             SUBJECT_ID INT NOT NULL,
             GENDER VARCHAR(5) NOT NULL,
@@ -65,15 +65,15 @@ def importPatients(con, destinationSchemaName, filePath, fileSeparator):
         Config.patients['column_mapping']['anchor_year_group'],
         Config.patients['column_mapping']['dod'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PATIENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='PATIENTS', df=df, dfColumns=dfColumns)
 
 
-def importAdmissions(con, destinationSchemaName, filePath, fileSeparator):
+def importAdmissions(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".ADMISSIONS")
+    log.info("Creating table: " + etlSchemaName + ".ADMISSIONS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.ADMISSIONS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.ADMISSIONS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.ADMISSIONS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.ADMISSIONS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -125,15 +125,15 @@ def importAdmissions(con, destinationSchemaName, filePath, fileSeparator):
         Config.admissions['column_mapping']['edouttime'],
         Config.admissions['column_mapping']['hospital_expire_flag'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='ADMISSIONS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='ADMISSIONS', df=df, dfColumns=dfColumns)
 
 
-def importTransfers(con, destinationSchemaName, filePath, fileSeparator):
+def importTransfers(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".TRANSFERS")
+    log.info("Creating table: " + etlSchemaName + ".TRANSFERS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.TRANSFERS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.TRANSFERS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.TRANSFERS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.TRANSFERS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT,
@@ -167,15 +167,15 @@ def importTransfers(con, destinationSchemaName, filePath, fileSeparator):
         Config.transfers['column_mapping']['outtime'],
         ]
     df['hadm_id'] = df['hadm_id'].astype('Int64').fillna(0).astype('int').replace({0: None})
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='TRANSFERS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='TRANSFERS', df=df, dfColumns=dfColumns)
 
 
-def importDiagnosesIcd(con, destinationSchemaName, filePath, fileSeparator):
+def importDiagnosesIcd(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".DIAGNOSES_ICD")
+    log.info("Creating table: " + etlSchemaName + ".DIAGNOSES_ICD")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.DIAGNOSES_ICD CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.DIAGNOSES_ICD
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.DIAGNOSES_ICD CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.DIAGNOSES_ICD
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -201,15 +201,15 @@ def importDiagnosesIcd(con, destinationSchemaName, filePath, fileSeparator):
         Config.diagnoses_icd['column_mapping']['icd_code'],
         Config.diagnoses_icd['column_mapping']['icd_version'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DIAGNOSES_ICD', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='DIAGNOSES_ICD', df=df, dfColumns=dfColumns)
 
 
-def importServices(con, destinationSchemaName, filePath, fileSeparator):
+def importServices(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".SERVICES")
+    log.info("Creating table: " + etlSchemaName + ".SERVICES")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.SERVICES CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.SERVICES
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.SERVICES CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.SERVICES
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -236,15 +236,15 @@ def importServices(con, destinationSchemaName, filePath, fileSeparator):
         Config.services['column_mapping']['prev_service'],
         Config.services['column_mapping']['curr_service'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='SERVICES', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='SERVICES', df=df, dfColumns=dfColumns)
 
 
-def importLabEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importLabEvents(con, etlSchemaName, filePath, fileSeparator, createSchema=True):
 
-    log.info("Creating table: " + destinationSchemaName + ".LABEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".LABEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.LABEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.LABEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.LABEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.LABEVENTS
         (
             LABEVENT_ID INT NOT NULL,
             SUBJECT_ID INT NOT NULL,
@@ -265,10 +265,11 @@ def importLabEvents(con, destinationSchemaName, filePath, fileSeparator):
         )
         ;
         """
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(dropQuery)
-            cursor.execute(createQuery)
+    if createSchema:
+        with con:
+            with con.cursor() as cursor:
+                cursor.execute(dropQuery)
+                cursor.execute(createQuery)
 
     import pandas as pd
     import numpy as np
@@ -297,15 +298,15 @@ def importLabEvents(con, destinationSchemaName, filePath, fileSeparator):
         Config.labevents['column_mapping']['priority'],
         Config.labevents['column_mapping']['comments'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='LABEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='LABEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importLabItems(con, destinationSchemaName, filePath, fileSeparator):
+def importLabItems(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".D_LABITEMS")
+    log.info("Creating table: " + etlSchemaName + ".D_LABITEMS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.D_LABITEMS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.D_LABITEMS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.D_LABITEMS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.D_LABITEMS
         (
             ITEMID INT NOT NULL,
             LABEL VARCHAR(50),
@@ -331,15 +332,15 @@ def importLabItems(con, destinationSchemaName, filePath, fileSeparator):
         Config.d_labitems['column_mapping']['category'],
         Config.d_labitems['column_mapping']['loinc_code'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='D_LABITEMS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='D_LABITEMS', df=df, dfColumns=dfColumns)
 
 
-def importProcedures(con, destinationSchemaName, filePath, fileSeparator):
+def importProcedures(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".PROCEDURES_ICD")
+    log.info("Creating table: " + etlSchemaName + ".PROCEDURES_ICD")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.PROCEDURES_ICD CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.PROCEDURES_ICD
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.PROCEDURES_ICD CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.PROCEDURES_ICD
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -366,15 +367,15 @@ def importProcedures(con, destinationSchemaName, filePath, fileSeparator):
         Config.procedures_icd['column_mapping']['icd_code'],
         Config.procedures_icd['column_mapping']['icd_version'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PROCEDURES_ICD', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='PROCEDURES_ICD', df=df, dfColumns=dfColumns)
 
 
-def importHcpcsEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importHcpcsEvents(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".HCPCSEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".HCPCSEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.HCPCSEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.HCPCSEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.HCPCSEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.HCPCSEVENTS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -402,15 +403,15 @@ def importHcpcsEvents(con, destinationSchemaName, filePath, fileSeparator):
         Config.hcpcsevents['column_mapping']['seq_num'],
         Config.hcpcsevents['column_mapping']['short_description'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='HCPCSEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='HCPCSEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importDrugCodes(con, destinationSchemaName, filePath, fileSeparator):
+def importDrugCodes(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".DRGCODES")
+    log.info("Creating table: " + etlSchemaName + ".DRGCODES")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.DRGCODES CASCADE"""
-    createQuery = """CREATE TABLE  """ + destinationSchemaName + """.DRGCODES
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.DRGCODES CASCADE"""
+    createQuery = """CREATE TABLE  """ + etlSchemaName + """.DRGCODES
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -441,15 +442,15 @@ def importDrugCodes(con, destinationSchemaName, filePath, fileSeparator):
         Config.drgcodes['column_mapping']['drg_severity'],
         Config.drgcodes['column_mapping']['drg_mortality'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DRGCODES', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='DRGCODES', df=df, dfColumns=dfColumns)
 
 
-def importPrescriptions(con, destinationSchemaName, filePath, fileSeparator):
+def importPrescriptions(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".PRESCRIPTIONS")
+    log.info("Creating table: " + etlSchemaName + ".PRESCRIPTIONS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.PRESCRIPTIONS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.PRESCRIPTIONS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.PRESCRIPTIONS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.PRESCRIPTIONS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -502,15 +503,15 @@ def importPrescriptions(con, destinationSchemaName, filePath, fileSeparator):
         Config.prescriptions['column_mapping']['doses_per_24_hrs'],
         Config.prescriptions['column_mapping']['route'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PRESCRIPTIONS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='PRESCRIPTIONS', df=df, dfColumns=dfColumns)
 
 
-def importMicrobiologyEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importMicrobiologyEvents(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".MICROBIOLOGYEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".MICROBIOLOGYEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.MICROBIOLOGYEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.MICROBIOLOGYEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.MICROBIOLOGYEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.MICROBIOLOGYEVENTS
         (
             MICROEVENT_ID INT NOT NULL,
             SUBJECT_ID INT NOT NULL,
@@ -583,19 +584,19 @@ def importMicrobiologyEvents(con, destinationSchemaName, filePath, fileSeparator
         Config.microbiologyevents['column_mapping']['interpretation'],
         Config.microbiologyevents['column_mapping']['comments'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='MICROBIOLOGYEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='MICROBIOLOGYEVENTS', df=df, dfColumns=dfColumns)
 
 
 def importMicrobiologyItems(con, destinationSchemaName, filePath, fileSeparator):
     pass
 
 
-def importPharmacy(con, destinationSchemaName, filePath, fileSeparator):
+def importPharmacy(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".PHARMACY")
+    log.info("Creating table: " + etlSchemaName + ".PHARMACY")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.PHARMACY CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.PHARMACY
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.PHARMACY CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.PHARMACY
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -675,15 +676,15 @@ def importPharmacy(con, destinationSchemaName, filePath, fileSeparator):
         Config.pharmacy['column_mapping']['dispensation'],
         Config.pharmacy['column_mapping']['fill_quantity'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PHARMACY', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='PHARMACY', df=df, dfColumns=dfColumns)
 
 
-def importProcedureEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importProcedureEvents(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".PROCEDUREEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".PROCEDUREEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.PROCEDUREEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.PROCEDUREEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.PROCEDUREEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.PROCEDUREEVENTS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -760,15 +761,15 @@ def importProcedureEvents(con, destinationSchemaName, filePath, fileSeparator):
         Config.procedureevents['column_mapping']['originalamount'],
         Config.procedureevents['column_mapping']['originalrate'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='PROCEDUREEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='PROCEDUREEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importItems(con, destinationSchemaName, filePath, fileSeparator):
+def importItems(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".D_ITEMS")
+    log.info("Creating table: " + etlSchemaName + ".D_ITEMS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.D_ITEMS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.D_ITEMS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.D_ITEMS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.D_ITEMS
         (
             ITEMID INT NOT NULL,
             LABEL VARCHAR(200) NOT NULL,
@@ -804,15 +805,15 @@ def importItems(con, destinationSchemaName, filePath, fileSeparator):
         Config.d_items['column_mapping']['lownormalvalue'],
         Config.d_items['column_mapping']['highnormalvalue'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='D_ITEMS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='D_ITEMS', df=df, dfColumns=dfColumns)
 
 
-def importDatetimeEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importDatetimeEvents(con, etlSchemaName, filePath, fileSeparator):
 
-    log.info("Creating table: " + destinationSchemaName + ".DATETIMEEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".DATETIMEEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.DATETIMEEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.DATETIMEEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.DATETIMEEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.DATETIMEEVENTS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT,
@@ -845,15 +846,15 @@ def importDatetimeEvents(con, destinationSchemaName, filePath, fileSeparator):
         Config.datetimeevents['column_mapping']['valueuom'],
         Config.datetimeevents['column_mapping']['warning'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DATETIMEEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='DATETIMEEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
+def importChartEvents(con, etlSchemaName, filePath, fileSeparator, createSchema=True):
 
-    log.info("Creating table: " + destinationSchemaName + ".CHARTEVENTS")
+    log.info("Creating table: " + etlSchemaName + ".CHARTEVENTS")
 
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.CHARTEVENTS CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS
+    dropQuery = """DROP TABLE IF EXISTS """ + etlSchemaName + """.CHARTEVENTS CASCADE"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS
         (
             SUBJECT_ID INT NOT NULL,
             HADM_ID INT NOT NULL,
@@ -868,31 +869,31 @@ def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
         )
         ;
         """
-    createChildQuery1 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_1 ( CHECK ( itemid >= 220000 AND itemid < 221000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery2 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_2 ( CHECK ( itemid >= 221000 AND itemid < 222000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery3 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_3 ( CHECK ( itemid >= 222000 AND itemid < 223000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery4 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_4 ( CHECK ( itemid >= 223000 AND itemid < 224000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery5 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_5 ( CHECK ( itemid >= 224000 AND itemid < 225000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery6 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_6 ( CHECK ( itemid >= 225000 AND itemid < 226000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery7 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_7 ( CHECK ( itemid >= 226000 AND itemid < 227000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery8 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_8 ( CHECK ( itemid >= 227000 AND itemid < 228000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery9 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_9 ( CHECK ( itemid >= 228000 AND itemid < 229000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createChildQuery10 = """CREATE TABLE """ + destinationSchemaName + """.CHARTEVENTS_10 ( CHECK ( itemid >= 229000 AND itemid < 230000 )) INHERITS (""" + destinationSchemaName + """.CHARTEVENTS);"""
-    createFunctionQuery = """CREATE OR REPLACE FUNCTION """ + destinationSchemaName + """.chartevents_insert_trigger()
+    createChildQuery1 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_1 ( CHECK ( itemid >= 220000 AND itemid < 221000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery2 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_2 ( CHECK ( itemid >= 221000 AND itemid < 222000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery3 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_3 ( CHECK ( itemid >= 222000 AND itemid < 223000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery4 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_4 ( CHECK ( itemid >= 223000 AND itemid < 224000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery5 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_5 ( CHECK ( itemid >= 224000 AND itemid < 225000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery6 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_6 ( CHECK ( itemid >= 225000 AND itemid < 226000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery7 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_7 ( CHECK ( itemid >= 226000 AND itemid < 227000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery8 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_8 ( CHECK ( itemid >= 227000 AND itemid < 228000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery9 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_9 ( CHECK ( itemid >= 228000 AND itemid < 229000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createChildQuery10 = """CREATE TABLE """ + etlSchemaName + """.CHARTEVENTS_10 ( CHECK ( itemid >= 229000 AND itemid < 230000 )) INHERITS (""" + etlSchemaName + """.CHARTEVENTS);"""
+    createFunctionQuery = """CREATE OR REPLACE FUNCTION """ + etlSchemaName + """.chartevents_insert_trigger()
         RETURNS TRIGGER AS $$
         BEGIN
-        IF ( NEW.itemid >= 220000 AND NEW.itemid < 221000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_1 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 221000 AND NEW.itemid < 222000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_2 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 222000 AND NEW.itemid < 223000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_3 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 223000 AND NEW.itemid < 224000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_4 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 224000 AND NEW.itemid < 225000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_5 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 225000 AND NEW.itemid < 226000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_6 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 226000 AND NEW.itemid < 227000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_7 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 227000 AND NEW.itemid < 228000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_8 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 228000 AND NEW.itemid < 229000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_9 VALUES (NEW.*);
-        ELSIF ( NEW.itemid >= 229000 AND NEW.itemid < 230000 ) THEN INSERT INTO """ + destinationSchemaName + """.CHARTEVENTS_10 VALUES (NEW.*);
+        IF ( NEW.itemid >= 220000 AND NEW.itemid < 221000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_1 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 221000 AND NEW.itemid < 222000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_2 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 222000 AND NEW.itemid < 223000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_3 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 223000 AND NEW.itemid < 224000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_4 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 224000 AND NEW.itemid < 225000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_5 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 225000 AND NEW.itemid < 226000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_6 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 226000 AND NEW.itemid < 227000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_7 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 227000 AND NEW.itemid < 228000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_8 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 228000 AND NEW.itemid < 229000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_9 VALUES (NEW.*);
+        ELSIF ( NEW.itemid >= 229000 AND NEW.itemid < 230000 ) THEN INSERT INTO """ + etlSchemaName + """.CHARTEVENTS_10 VALUES (NEW.*);
         ELSE
-            INSERT INTO """ + destinationSchemaName + """.chartevents_null VALUES (NEW.*);
+            INSERT INTO """ + etlSchemaName + """.chartevents_null VALUES (NEW.*);
         END IF;
         RETURN NULL;
         END;
@@ -901,44 +902,45 @@ def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
         ;
         """
     dropTriggerQuery = """DROP TRIGGER IF EXISTS insert_chartevents_trigger
-    ON """ + destinationSchemaName + """.CHARTEVENTS
+    ON """ + etlSchemaName + """.CHARTEVENTS
     ;
     """
     createTriggerQuery = """CREATE TRIGGER insert_chartevents_trigger
-    BEFORE INSERT ON """ + destinationSchemaName + """.CHARTEVENTS
-    FOR EACH ROW EXECUTE PROCEDURE """ + destinationSchemaName + """.chartevents_insert_trigger()
+    BEFORE INSERT ON """ + etlSchemaName + """.CHARTEVENTS
+    FOR EACH ROW EXECUTE PROCEDURE """ + etlSchemaName + """.chartevents_insert_trigger()
     ;
     """
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(dropQuery)
-            cursor.execute(createQuery)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_1")
-            cursor.execute(createChildQuery1)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_2")
-            cursor.execute(createChildQuery2)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_3")
-            cursor.execute(createChildQuery3)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_4")
-            cursor.execute(createChildQuery4)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_5")
-            cursor.execute(createChildQuery5)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_6")
-            cursor.execute(createChildQuery6)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_7")
-            cursor.execute(createChildQuery7)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_8")
-            cursor.execute(createChildQuery8)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_9")
-            cursor.execute(createChildQuery9)
-            log.info("Creating child table: " + destinationSchemaName + ".CHARTEVENTS_10")
-            cursor.execute(createChildQuery10)
-            log.info("Creating function: " + destinationSchemaName + ".CHARTEVENTS.chartevents_insert_trigger()")
-            cursor.execute(createFunctionQuery)
-            log.info("Dropping trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
-            cursor.execute(dropTriggerQuery)
-            log.info("Creating trigger: " + destinationSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
-            cursor.execute(createTriggerQuery)
+    if createSchema:
+        with con:
+            with con.cursor() as cursor:
+                cursor.execute(dropQuery)
+                cursor.execute(createQuery)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_1")
+                cursor.execute(createChildQuery1)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_2")
+                cursor.execute(createChildQuery2)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_3")
+                cursor.execute(createChildQuery3)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_4")
+                cursor.execute(createChildQuery4)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_5")
+                cursor.execute(createChildQuery5)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_6")
+                cursor.execute(createChildQuery6)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_7")
+                cursor.execute(createChildQuery7)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_8")
+                cursor.execute(createChildQuery8)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_9")
+                cursor.execute(createChildQuery9)
+                log.info("Creating child table: " + etlSchemaName + ".CHARTEVENTS_10")
+                cursor.execute(createChildQuery10)
+                log.info("Creating function: " + etlSchemaName + ".CHARTEVENTS.chartevents_insert_trigger()")
+                cursor.execute(createFunctionQuery)
+                log.info("Dropping trigger: " + etlSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
+                cursor.execute(dropTriggerQuery)
+                log.info("Creating trigger: " + etlSchemaName + ".CHARTEVENTS.insert_chartevents_trigger")
+                cursor.execute(createTriggerQuery)
 
     import pandas as pd
 
@@ -956,191 +958,142 @@ def importChartEvents(con, destinationSchemaName, filePath, fileSeparator):
         Config.chartevents['column_mapping']['valueuom'],
         Config.chartevents['column_mapping']['warning'],
         ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='CHARTEVENTS', df=df, dfColumns=dfColumns)
+    __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='CHARTEVENTS', df=df, dfColumns=dfColumns)
 
 
-def importConcept(con, destinationSchemaName, filePath, fileSeparator):
-
-    log.info("Creating table: " + destinationSchemaName + ".concept")
-
-    dropQuery = """DROP TABLE IF EXISTS """ + destinationSchemaName + """.concept CASCADE"""
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept
-        (
-            SUBJECT_ID INT NOT NULL,
-            HADM_ID INT NOT NULL,
-            STAY_ID INT NOT NULL,
-            CHARTTIME TIMESTAMP(0) NOT NULL,
-            STORETIME TIMESTAMP(0) ,
-            ITEMID INT NOT NULL,
-            VALUE VARCHAR(160) ,
-            VALUENUM DOUBLE PRECISION,
-            VALUEUOM VARCHAR(20),
-            WARNING SMALLINT NOT NULL
-        )
-        ;
-        """
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(dropQuery)
-            cursor.execute(createQuery)
-
-    import pandas as pd
-
-    df = pd.read_csv(filePath, sep=fileSeparator)
-    dfColumns = [
-        Config.datetimeevents['column_mapping']['subject_id'],
-        Config.datetimeevents['column_mapping']['hadm_id'],
-        Config.datetimeevents['column_mapping']['stay_id'],
-        Config.datetimeevents['column_mapping']['charttime'],
-        Config.datetimeevents['column_mapping']['storetime'],
-        Config.datetimeevents['column_mapping']['itemid'],
-        Config.datetimeevents['column_mapping']['value'],
-        Config.datetimeevents['column_mapping']['valueuom'],
-        Config.datetimeevents['column_mapping']['warning'],
-        ]
-    __saveDataframe(con=con, destinationSchemaName=destinationSchemaName, destinationTableName='DATETIMEEVENTS', df=df, dfColumns=dfColumns)
-
-
-def importDataCsv(con, destinationSchemaName):
+def importDataCsv(con, etlSchemaName):
     importPatients(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.patients['file_name'],
         fileSeparator=','
         )
     importAdmissions(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.admissions['file_name'],
         fileSeparator=','
         )
     importTransfers(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.transfers['file_name'],
         fileSeparator=','
         )
     importDiagnosesIcd(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.diagnoses_icd['file_name'],
         fileSeparator=','
         )
     importServices(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.services['file_name'],
         fileSeparator=','
         )
-    importLabEvents(
-        con=con,
-        destinationSchemaName=destinationSchemaName,
-        filePath = Config.labevents['file_name'],
-        fileSeparator=','
-        )
-    # i = 'a'
-    # filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
     # importLabEvents(
     #     con=con,
-    #     destinationSchemaName=destinationSchemaName,
-    #     filePath = filePath + i,
+    #     etlSchemaName=etlSchemaName,
+    #     filePath = Config.labevents['file_name'],
     #     fileSeparator=','
     #     )
-    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm']:
-    #     filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
-    #     importLabEvents(
-    #         con=con,
-    #         destinationSchemaName=destinationSchemaName,
-    #         filePath = filePath + i,
-    #         fileSeparator=','
-    #         )
+    i = 'a'
+    filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+    importLabEvents(
+        con=con,
+        etlSchemaName=etlSchemaName,
+        filePath = filePath + i,
+        fileSeparator=','
+        )
+    for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm']:
+        filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+        importLabEvents(
+            con=con,
+            etlSchemaName=etlSchemaName,
+            filePath = filePath + i,
+            fileSeparator=',',
+            createSchema=False
+            )
     importLabItems(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.d_labitems['file_name'],
         fileSeparator=','
         )
     importProcedures(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.procedures_icd['file_name'],
         fileSeparator=','
         )
     importHcpcsEvents(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.hcpcsevents['file_name'],
         fileSeparator=','
         )
     importDrugCodes(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.drgcodes['file_name'],
         fileSeparator=','
         )
     importPrescriptions(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.prescriptions['file_name'],
         fileSeparator=','
         )
     importMicrobiologyEvents(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.microbiologyevents['file_name'],
         fileSeparator=','
         )
     importPharmacy(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.pharmacy['file_name'],
         fileSeparator=','
         )
     importProcedureEvents(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.procedureevents['file_name'],
         fileSeparator=','
         )
     importItems(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.d_items['file_name'],
         fileSeparator=','
         )
     importDatetimeEvents(
         con=con,
-        destinationSchemaName=destinationSchemaName,
+        etlSchemaName=etlSchemaName,
         filePath = Config.datetimeevents['file_name'],
         fileSeparator=','
         )
-    importChartEvents(
-        con=con,
-        destinationSchemaName=destinationSchemaName,
-        filePath = Config.chartevents['file_name'],
-        fileSeparator=','
-        )
-    # filePath = '/superbugai-data/mimiciv/1.0/icu/xaa'
     # importChartEvents(
     #     con=con,
-    #     destinationSchemaName=destinationSchemaName,
-    #     filePath = filePath,
+    #     etlSchemaName=etlSchemaName,
+    #     filePath = Config.chartevents['file_name'],
     #     fileSeparator=','
     #     )
-    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
-    #     filePath = '/superbugai-data/mimiciv/1.0/icu/xa'
-    #     importChartEvents(
-    #         con=con,
-    #         destinationSchemaName=destinationSchemaName,
-    #         filePath = filePath + i,
-    #         fileSeparator=','
-    #         )
-
-
-def importAthenaCsv(con, destinationSchemaName):
-    importConcept(
+    filePath = '/superbugai-data/mimiciv/1.0/icu/xaa'
+    importChartEvents(
         con=con,
-        destinationSchemaName=destinationSchemaName,
-        filePath = Config.athena.concept['file_name'],
+        etlSchemaName=etlSchemaName,
+        filePath = filePath,
         fileSeparator=','
         )
+    for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
+        filePath = '/superbugai-data/mimiciv/1.0/icu/xa'
+        importChartEvents(
+            con=con,
+            etlSchemaName=etlSchemaName,
+            filePath = filePath + i,
+            fileSeparator=',',
+            createSchema=False
+            )

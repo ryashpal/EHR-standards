@@ -8,9 +8,11 @@ sql_db_name = 'mimic4'
 
 # new schema to host the migrated tables
 
-schema_name = 'omop_migration_test'
+lookup_schema_name = 'vocabulary_test_20220817'
 
-lookup_schema_name = 'voc_dataset_test'
+etl_schema_name = 'omop_migration_etl_20220817'
+
+cdm_schema_name = 'omop_test_20220817'
 
 vocabulary = {
     'concept': '/superbugai-data/vocabulary_download_v5/CONCEPT.csv',
@@ -21,7 +23,6 @@ vocabulary = {
     'relationship': '/superbugai-data/vocabulary_download_v5/RELATIONSHIP.csv',
     'concept_synonym': '/superbugai-data/vocabulary_download_v5/CONCEPT_SYNONYM.csv',
     'concept_ancestor': '/superbugai-data/vocabulary_download_v5/CONCEPT_ANCESTOR.csv',
-    'drug_strength': '/superbugai-data/vocabulary_download_v5/DRUG_STRENGTH.csv',
     'tmp_custom_mapping': '/superbugai-data/vocabulary_download_v5/tmp_custom_mapping.csv',
 }
 

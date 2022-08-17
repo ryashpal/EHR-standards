@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createDiagnosesIcdClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_diagnoses_icd_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_diagnoses_icd_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_diagnoses_icd_clean AS
+def createDiagnosesIcdClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_diagnoses_icd_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_diagnoses_icd_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_diagnoses_icd_clean AS
         SELECT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -27,9 +27,9 @@ def createDiagnosesIcdClean(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.src_diagnoses_icd src
+            """ + etlSchemaName + """.src_diagnoses_icd src
         INNER JOIN
-            """ + schemaName + """.src_admissions adm
+            """ + etlSchemaName + """.src_admissions adm
                 ON  src.hadm_id = adm.hadm_id
         ;
         """
@@ -39,10 +39,10 @@ def createDiagnosesIcdClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createDiagnosesIcdMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_diagnoses_icd_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_diagnoses_icd_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_diagnoses_icd_mapped AS
+def createDiagnosesIcdMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_diagnoses_icd_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_diagnoses_icd_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_diagnoses_icd_mapped AS
         SELECT
             src.subject_id                      AS subject_id,
             src.hadm_id                         AS hadm_id,
@@ -61,7 +61,7 @@ def createDiagnosesIcdMapped(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id  
         FROM
-            """ + schemaName + """.lk_diagnoses_icd_clean src
+            """ + etlSchemaName + """.lk_diagnoses_icd_clean src
         LEFT JOIN
             voc_dataset.concept vc
                 ON REPLACE(vc.concept_code, '.', '') = REPLACE(TRIM(src.source_code), '.', '')
@@ -83,15 +83,15 @@ def createDiagnosesIcdMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def dropDiagnosesIcdMapped(con, schemaName):
-    log.info("Dropping table: " + schemaName + ".tmp_seq_num_to_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_seq_num_to_concept cascade"""
+def dropDiagnosesIcdMapped(con, etlSchemaName):
+    log.info("Dropping table: " + etlSchemaName + ".tmp_seq_num_to_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_seq_num_to_concept cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def migrate(con, schemaName):
-    createDiagnosesIcdClean(con = con, schemaName = schemaName)
-    createDiagnosesIcdMapped(con = con, schemaName = schemaName)
-    dropDiagnosesIcdMapped(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createDiagnosesIcdClean(con = con, etlSchemaName = etlSchemaName)
+    createDiagnosesIcdMapped(con = con, etlSchemaName = etlSchemaName)
+    dropDiagnosesIcdMapped(con = con, etlSchemaName = etlSchemaName)

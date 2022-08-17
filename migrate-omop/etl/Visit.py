@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createAdmissionsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_admissions_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_admissions_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_admissions_clean AS
+def createAdmissionsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_admissions_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_admissions_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_admissions_clean AS
         SELECT
             src.subject_id                                  AS subject_id,
             src.hadm_id                                     AS hadm_id,
@@ -27,7 +27,7 @@ def createAdmissionsClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-        """ + schemaName + """.src_admissions src -- adm
+        """ + etlSchemaName + """.src_admissions src -- adm
         ;
         """
     with con:
@@ -36,10 +36,10 @@ def createAdmissionsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTransfersClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_transfers_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_transfers_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_transfers_clean AS
+def createTransfersClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_transfers_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_transfers_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_transfers_clean AS
         SELECT
             src.subject_id                                  AS subject_id,
             COALESCE(src.hadm_id, vis.hadm_id)              AS hadm_id,
@@ -53,9 +53,9 @@ def createTransfersClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-            """ + schemaName + """.src_transfers src
+            """ + etlSchemaName + """.src_transfers src
         LEFT JOIN
-                """ + schemaName + """.lk_admissions_clean vis -- associate transfers with admissions according to 
+                """ + etlSchemaName + """.lk_admissions_clean vis -- associate transfers with admissions according to 
                 ON vis.subject_id = src.subject_id
                 AND src.intime BETWEEN vis.start_datetime AND vis.end_datetime
                 AND src.hadm_id IS NULL
@@ -69,14 +69,14 @@ def createTransfersClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createServicesDuplicated(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_services_duplicated")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_services_duplicated cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_services_duplicated AS
+def createServicesDuplicated(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_services_duplicated")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_services_duplicated cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_services_duplicated AS
         SELECT
             trace_id, COUNT(*) AS row_count
         FROM 
-            """ + schemaName + """.src_services src
+            """ + etlSchemaName + """.src_services src
         GROUP BY
             src.trace_id
         HAVING COUNT(*) > 1
@@ -88,10 +88,10 @@ def createServicesDuplicated(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createServicesClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_services_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_services_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_services_clean AS
+def createServicesClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_services_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_services_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_services_clean AS
         SELECT
             src.subject_id                                  AS subject_id,
             src.hadm_id                                     AS hadm_id,
@@ -111,9 +111,9 @@ def createServicesClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-        """ + schemaName + """.src_services src
+        """ + etlSchemaName + """.src_services src
         LEFT JOIN
-        """ + schemaName + """.lk_services_duplicated sd
+        """ + etlSchemaName + """.lk_services_duplicated sd
                 ON src.trace_id = sd.trace_id
         WHERE
             sd.trace_id IS NULL -- remove duplicates with the exact same time of transferring
@@ -125,10 +125,10 @@ def createServicesClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitWithoutId(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_no_hadm_all")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_no_hadm_all cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_no_hadm_all AS
+def createVisitWithoutId(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_no_hadm_all")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_no_hadm_all cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_no_hadm_all AS
         -- labevents
         SELECT
             src.subject_id                                  AS subject_id,
@@ -140,7 +140,7 @@ def createVisitWithoutId(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_meas_labevents_mapped src
+            """ + etlSchemaName + """.lk_meas_labevents_mapped src
         WHERE
             src.hadm_id IS NULL
         UNION ALL
@@ -155,7 +155,7 @@ def createVisitWithoutId(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped src
+            """ + etlSchemaName + """.lk_specimen_mapped src
         WHERE
             src.hadm_id IS NULL
         UNION ALL
@@ -170,7 +170,7 @@ def createVisitWithoutId(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_meas_organism_mapped src
+            """ + etlSchemaName + """.lk_meas_organism_mapped src
         WHERE
             src.hadm_id IS NULL
         UNION ALL
@@ -185,7 +185,7 @@ def createVisitWithoutId(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_meas_ab_mapped src
+            """ + etlSchemaName + """.lk_meas_ab_mapped src
         WHERE
             src.hadm_id IS NULL
         ;
@@ -196,10 +196,10 @@ def createVisitWithoutId(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitWithoutIdDist(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_no_hadm_dist")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_no_hadm_dist cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_no_hadm_dist AS
+def createVisitWithoutIdDist(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_no_hadm_dist")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_no_hadm_dist cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_no_hadm_dist AS
         SELECT
             src.subject_id                                  AS subject_id,
             src.date_id                                     AS date_id,
@@ -214,7 +214,7 @@ def createVisitWithoutIdDist(con, schemaName):
             0                               AS load_row_id,
             jsonb_build_object('subject_id', src.subject_id, 'date_id', src.date_id )                                AS trace_id
         FROM
-            """ + schemaName + """.lk_visit_no_hadm_all src
+            """ + etlSchemaName + """.lk_visit_no_hadm_all src
         GROUP BY
             src.subject_id,
             src.date_id
@@ -226,10 +226,10 @@ def createVisitWithoutIdDist(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_clean AS
+def createVisitClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_clean AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS visit_occurrence_id,
             src.subject_id                                  AS subject_id,
@@ -249,7 +249,7 @@ def createVisitClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_admissions_clean src -- adm
+            """ + etlSchemaName + """.lk_admissions_clean src -- adm
         UNION ALL
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS visit_occurrence_id,
@@ -270,7 +270,7 @@ def createVisitClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_visit_no_hadm_dist src -- adm
+            """ + etlSchemaName + """.lk_visit_no_hadm_dist src -- adm
         ;
         """
     with con:
@@ -279,10 +279,10 @@ def createVisitClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitDetailClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_detail_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_detail_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_detail_clean AS
+def createVisitDetailClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_detail_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_detail_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_detail_clean AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS visit_detail_id,
             src.subject_id                                  AS subject_id,
@@ -301,12 +301,12 @@ def createVisitDetailClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-            """ + schemaName + """.lk_transfers_clean src
+            """ + etlSchemaName + """.lk_transfers_clean src
         WHERE
             src.hadm_id IS NOT NULL -- some ER transfers are excluded because not all of them fit to additional single day visits
         ;
         """
-    insertAdmissionsQuery = """INSERT INTO """ + schemaName + """.lk_visit_detail_clean
+    insertAdmissionsQuery = """INSERT INTO """ + etlSchemaName + """.lk_visit_detail_clean
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS visit_detail_id,
             src.subject_id                                  AS subject_id,
@@ -325,12 +325,12 @@ def createVisitDetailClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-            """ + schemaName + """.lk_admissions_clean src
+            """ + etlSchemaName + """.lk_admissions_clean src
         WHERE
             src.is_er_admission
         ;
         """
-    insertServicesQuery = """INSERT INTO """ + schemaName + """.lk_visit_detail_clean
+    insertServicesQuery = """INSERT INTO """ + etlSchemaName + """.lk_visit_detail_clean
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int               AS visit_detail_id,
             src.subject_id                                  AS subject_id,
@@ -350,7 +350,7 @@ def createVisitDetailClean(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-            """ + schemaName + """.lk_services_clean src
+            """ + etlSchemaName + """.lk_services_clean src
         WHERE
             src.prev_service = src.lag_service -- ensure that the services sequence is still consistent after removing duplicates
         ;
@@ -363,10 +363,10 @@ def createVisitDetailClean(con, schemaName):
             cursor.execute(insertServicesQuery)
 
 
-def createVisitDetailPrevNext(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_detail_prev_next")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_detail_prev_next cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_detail_prev_next AS
+def createVisitDetailPrevNext(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_detail_prev_next")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_detail_prev_next cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_detail_prev_next AS
         SELECT 
             src.visit_detail_id                             AS visit_detail_id,
             src.subject_id                                  AS subject_id,
@@ -406,9 +406,9 @@ def createVisitDetailPrevNext(con, schemaName):
             src.load_row_id                   AS load_row_id,
             src.trace_id                      AS trace_id
         FROM 
-            """ + schemaName + """.lk_visit_detail_clean src
+            """ + etlSchemaName + """.lk_visit_detail_clean src
         LEFT JOIN 
-            """ + schemaName + """.lk_visit_clean vis
+            """ + etlSchemaName + """.lk_visit_clean vis
                 ON  src.subject_id = vis.subject_id
                 AND (
                     src.hadm_id = vis.hadm_id
@@ -422,10 +422,10 @@ def createVisitDetailPrevNext(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_visit_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_visit_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_visit_concept AS
+def createVisitConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_visit_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_visit_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_visit_concept AS
         SELECT 
             vc.concept_code     AS source_code,
             vc.concept_id       AS source_concept_id,
@@ -458,10 +458,10 @@ def createVisitConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createVisitOccurrenceCdm(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_visit_occurrence")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_visit_occurrence cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_visit_occurrence
+def createVisitOccurrenceCdm(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_visit_occurrence")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_visit_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_visit_occurrence
         (
             visit_occurrence_id           INTEGER     not null ,
             person_id                     INTEGER     not null ,
@@ -488,7 +488,7 @@ def createVisitOccurrenceCdm(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_visit_occurrence
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_visit_occurrence
         SELECT
             src.visit_occurrence_id                 AS visit_occurrence_id,
             per.person_id                           AS person_id,
@@ -522,21 +522,21 @@ def createVisitOccurrenceCdm(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM 
-            """ + schemaName + """.lk_visit_clean src
+            """ + etlSchemaName + """.lk_visit_clean src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         LEFT JOIN 
-            """ + schemaName + """.lk_visit_concept lat
+            """ + etlSchemaName + """.lk_visit_concept lat
                 ON lat.source_code = src.admission_type
         LEFT JOIN 
-            """ + schemaName + """.lk_visit_concept la 
+            """ + etlSchemaName + """.lk_visit_concept la 
                 ON la.source_code = src.admission_location
         LEFT JOIN 
-            """ + schemaName + """.lk_visit_concept ld
+            """ + etlSchemaName + """.lk_visit_concept ld
                 ON ld.source_code = src.discharge_location
         LEFT JOIN 
-            """ + schemaName + """.cdm_care_site cs
+            """ + etlSchemaName + """.cdm_care_site cs
                 ON care_site_name = 'BIDMC' -- Beth Israel hospital for all
         ;
         """
@@ -547,10 +547,10 @@ def createVisitOccurrenceCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def createVisitDetailCdm(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_visit_detail")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_visit_detail cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_visit_detail
+def createVisitDetailCdm(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_visit_detail")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_visit_detail cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_visit_detail
         (
             visit_detail_id                    INTEGER     not null ,
             person_id                          INTEGER     not null ,
@@ -578,7 +578,7 @@ def createVisitDetailCdm(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_visit_detail
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_visit_detail
         SELECT
             src.visit_detail_id                     AS visit_detail_id,
             per.person_id                           AS person_id,
@@ -610,26 +610,26 @@ def createVisitDetailCdm(con, schemaName):
             src.load_row_id                   AS load_row_id,
             src.trace_id                      AS trace_id
         FROM
-            """ + schemaName + """.lk_visit_detail_prev_next src
+            """ + etlSchemaName + """.lk_visit_detail_prev_next src
         INNER JOIN
-            """ + schemaName + """.cdm_person per 
+            """ + etlSchemaName + """.cdm_person per 
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis 
+            """ + etlSchemaName + """.cdm_visit_occurrence vis 
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
         LEFT JOIN
-            """ + schemaName + """.cdm_care_site cs
+            """ + etlSchemaName + """.cdm_care_site cs
                 ON cs.care_site_source_value = src.current_location
         LEFT JOIN
-            """ + schemaName + """.lk_visit_concept vdc
+            """ + etlSchemaName + """.lk_visit_concept vdc
                 ON vdc.source_code = src.current_location
         LEFT JOIN
-            """ + schemaName + """.lk_visit_concept la 
+            """ + etlSchemaName + """.lk_visit_concept la 
                 ON la.source_code = src.admission_location
         LEFT JOIN
-            """ + schemaName + """.lk_visit_concept ld
+            """ + etlSchemaName + """.lk_visit_concept ld
                 ON ld.source_code = src.discharge_location
         ;
         """
@@ -640,24 +640,24 @@ def createVisitDetailCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migratePart1(con, schemaName):
-    createAdmissionsClean(con = con, schemaName = schemaName)
-    createTransfersClean(con = con, schemaName = schemaName)
-    createServicesDuplicated(con = con, schemaName = schemaName)
-    createServicesClean(con = con, schemaName = schemaName)
+def migratePart1(con, etlSchemaName):
+    createAdmissionsClean(con = con, etlSchemaName = etlSchemaName)
+    createTransfersClean(con = con, etlSchemaName = etlSchemaName)
+    createServicesDuplicated(con = con, etlSchemaName = etlSchemaName)
+    createServicesClean(con = con, etlSchemaName = etlSchemaName)
 
 
-def migratePart2(con, schemaName):
-    createVisitWithoutId(con = con, schemaName = schemaName)
-    createVisitWithoutIdDist(con = con, schemaName = schemaName)
-    createVisitClean(con = con, schemaName = schemaName)
-    createVisitDetailClean(con = con, schemaName = schemaName)
-    createVisitDetailPrevNext(con = con, schemaName = schemaName)
-    createVisitConcept(con = con, schemaName = schemaName)
+def migratePart2(con, etlSchemaName):
+    createVisitWithoutId(con = con, etlSchemaName = etlSchemaName)
+    createVisitWithoutIdDist(con = con, etlSchemaName = etlSchemaName)
+    createVisitClean(con = con, etlSchemaName = etlSchemaName)
+    createVisitDetailClean(con = con, etlSchemaName = etlSchemaName)
+    createVisitDetailPrevNext(con = con, etlSchemaName = etlSchemaName)
+    createVisitConcept(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateVisitOccurrence(con, schemaName):
-    createVisitOccurrenceCdm(con = con, schemaName = schemaName)
+def migrateVisitOccurrence(con, etlSchemaName):
+    createVisitOccurrenceCdm(con = con, etlSchemaName = etlSchemaName)
 
-def migrateVisitDetail(con, schemaName):
-    createVisitDetailCdm(con = con, schemaName = schemaName)
+def migrateVisitDetail(con, etlSchemaName):
+    createVisitDetailCdm(con = con, etlSchemaName = etlSchemaName)

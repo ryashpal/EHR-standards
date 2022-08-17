@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createPrescriptionsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_prescriptions_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_prescriptions_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_prescriptions_clean AS
+def createPrescriptionsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_prescriptions_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_prescriptions_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_prescriptions_clean AS
         SELECT
             -- -- 'drug:['                || COALESCE(drug, drug_name_poe, drug_name_generic,'') || ']'||
             -- 'drug:['                || COALESCE(drug,'') || ']'||
@@ -48,9 +48,9 @@ def createPrescriptionsClean(con, schemaName):
             src.trace_id                    AS trace_id
 
         FROM
-            """ + schemaName + """.src_prescriptions src -- pr
+            """ + etlSchemaName + """.src_prescriptions src -- pr
         LEFT JOIN 
-            """ + schemaName + """.src_pharmacy pharm
+            """ + etlSchemaName + """.src_pharmacy pharm
                 ON src.pharmacy_id = pharm.pharmacy_id
         WHERE
             src.starttime IS NOT NULL
@@ -63,10 +63,10 @@ def createPrescriptionsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createPrNdcConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_pr_ndc_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_pr_ndc_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_pr_ndc_concept AS
+def createPrNdcConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_pr_ndc_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_pr_ndc_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_pr_ndc_concept AS
         SELECT DISTINCT
             src.ndc_source_code     AS source_code,
             vc.domain_id            AS source_domain_id,
@@ -74,7 +74,7 @@ def createPrNdcConcept(con, schemaName):
             vc2.domain_id           AS target_domain_id,
             vc2.concept_id          AS target_concept_id
         FROM
-            """ + schemaName + """.lk_prescriptions_clean src -- pr
+            """ + etlSchemaName + """.lk_prescriptions_clean src -- pr
         LEFT JOIN
             voc_dataset.concept vc
                 ON  vc.concept_code = src.ndc_source_code --this covers 85 percent of direct mapping but no standard
@@ -96,10 +96,10 @@ def createPrNdcConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createPrGcptConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_pr_gcpt_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_pr_gcpt_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_pr_gcpt_concept AS
+def createPrGcptConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_pr_gcpt_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_pr_gcpt_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_pr_gcpt_concept AS
         SELECT DISTINCT
             src.gcpt_source_code    AS source_code,
             vc.domain_id            AS source_domain_id,
@@ -107,7 +107,7 @@ def createPrGcptConcept(con, schemaName):
             vc2.domain_id           AS target_domain_id,
             vc2.concept_id          AS target_concept_id
         FROM
-            """ + schemaName + """.lk_prescriptions_clean src -- pr
+            """ + etlSchemaName + """.lk_prescriptions_clean src -- pr
         LEFT JOIN
             voc_dataset.concept vc
                 ON  vc.concept_code = src.gcpt_source_code
@@ -129,10 +129,10 @@ def createPrGcptConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createPrRouteConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_pr_route_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_pr_route_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_pr_route_concept AS
+def createPrRouteConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_pr_route_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_pr_route_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_pr_route_concept AS
         SELECT DISTINCT
             src.route_source_code   AS source_code,
             vc.domain_id            AS source_domain_id,
@@ -140,7 +140,7 @@ def createPrRouteConcept(con, schemaName):
             vc2.domain_id           AS target_domain_id,
             vc2.concept_id          AS target_concept_id
         FROM
-            """ + schemaName + """.lk_prescriptions_clean src -- pr
+            """ + etlSchemaName + """.lk_prescriptions_clean src -- pr
         LEFT JOIN
             voc_dataset.concept vc
                 ON  vc.concept_code = src.route_source_code
@@ -162,10 +162,10 @@ def createPrRouteConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createDrugMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_drug_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_drug_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_drug_mapped AS
+def createDrugMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_drug_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_drug_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_drug_mapped AS
         SELECT
             src.hadm_id                                     AS hadm_id,
             src.subject_id                                  AS subject_id,
@@ -191,17 +191,17 @@ def createDrugMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_prescriptions_clean src
+            """ + etlSchemaName + """.lk_prescriptions_clean src
         LEFT JOIN
-            """ + schemaName + """.lk_pr_ndc_concept vc_ndc
+            """ + etlSchemaName + """.lk_pr_ndc_concept vc_ndc
                 ON  src.ndc_source_code = vc_ndc.source_code
                 AND vc_ndc.target_concept_id IS NOT NULL
         LEFT JOIN
-            """ + schemaName + """.lk_pr_gcpt_concept vc_gcpt
+            """ + etlSchemaName + """.lk_pr_gcpt_concept vc_gcpt
                 ON  src.gcpt_source_code = vc_gcpt.source_code
                 AND vc_gcpt.target_concept_id IS NOT NULL
         LEFT JOIN
-            """ + schemaName + """.lk_pr_route_concept vc_route
+            """ + etlSchemaName + """.lk_pr_route_concept vc_route
                 ON src.route_source_code = vc_route.source_code
                 AND vc_route.target_concept_id IS NOT NULL
         ;
@@ -212,10 +212,10 @@ def createDrugMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createDrugExposure(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_drug_exposure")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_drug_exposure cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_drug_exposure
+def createDrugExposure(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_drug_exposure")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_drug_exposure cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_drug_exposure
         (
             drug_exposure_id              INTEGER       not null ,
             person_id                     INTEGER       not null ,
@@ -248,7 +248,7 @@ def createDrugExposure(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_drug_exposure
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_drug_exposure
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS drug_exposure_id,
             per.person_id                               AS person_id,
@@ -279,12 +279,12 @@ def createDrugExposure(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_drug_mapped src
+            """ + etlSchemaName + """.lk_drug_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
@@ -298,10 +298,10 @@ def createDrugExposure(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def createJoinVocDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_join_voc_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_join_voc_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_join_voc_drug
+def createJoinVocDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_join_voc_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_join_voc_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_join_voc_drug
         AS SELECT DISTINCT
             ca.descendant_concept_id    AS descendant_concept_id,
             ca.ancestor_concept_id      AS ancestor_concept_id,
@@ -323,10 +323,10 @@ def createJoinVocDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempPretargetDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_pretarget_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_pretarget_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_pretarget_drug
+def createTempPretargetDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_pretarget_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_pretarget_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_pretarget_drug
         AS SELECT
             d.drug_exposure_id          AS drug_exposure_id,
             d.person_id                 AS person_id,
@@ -335,9 +335,9 @@ def createTempPretargetDrug(con, schemaName):
             d.days_supply               AS days_supply,
             d.drug_exposure_end_date    AS drug_exposure_end_date
         FROM
-            """ + schemaName + """.cdm_drug_exposure d
+            """ + etlSchemaName + """.cdm_drug_exposure d
         JOIN
-            """ + schemaName + """.lk_join_voc_drug v
+            """ + etlSchemaName + """.lk_join_voc_drug v
                 ON v.descendant_concept_id = d.drug_concept_id
         WHERE
             d.drug_concept_id != 0
@@ -349,10 +349,10 @@ def createTempPretargetDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempSubenddatesUnDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_subenddates_un_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_subenddates_un_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_subenddates_un_drug
+def createTempSubenddatesUnDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_subenddates_un_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_un_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_subenddates_un_drug
             AS SELECT
                 person_id                           AS person_id,
                 ingredient_concept_id               AS ingredient_concept_id,
@@ -365,7 +365,7 @@ def createTempSubenddatesUnDrug(con, schemaName):
                     ORDER BY
                         drug_exposure_start_date)   AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_pretarget_drug
+                """ + etlSchemaName + """.tmp_pretarget_drug
         UNION ALL
             SELECT
                 person_id                   AS person_id,
@@ -374,7 +374,7 @@ def createTempSubenddatesUnDrug(con, schemaName):
                 1                           AS event_type,
                 NULL                        AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_pretarget_drug
+                """ + etlSchemaName + """.tmp_pretarget_drug
         ;
         """
     with con:
@@ -383,10 +383,10 @@ def createTempSubenddatesUnDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempSubenddatesRowsDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_subenddates_rows_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_subenddates_rows_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_subenddates_rows_drug
+def createTempSubenddatesRowsDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_subenddates_rows_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_rows_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_subenddates_rows_drug
         AS SELECT
             person_id                       AS person_id,
             ingredient_concept_id           AS ingredient_concept_id,
@@ -411,7 +411,7 @@ def createTempSubenddatesRowsDrug(con, schemaName):
                     event_type)             AS overall_ord
                     -- this re-numbers the inner UNION so all rows are numbered ordered by the event date
         FROM
-            """ + schemaName + """.tmp_subenddates_un_drug
+            """ + etlSchemaName + """.tmp_subenddates_un_drug
         ;
         """
     with con:
@@ -420,16 +420,16 @@ def createTempSubenddatesRowsDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempSubenddatesDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_subenddates_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_subenddates_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_subenddates_drug
+def createTempSubenddatesDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_subenddates_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_subenddates_drug
         AS SELECT
             person_id               AS person_id,
             ingredient_concept_id   AS ingredient_concept_id,
             event_date              AS end_date
         FROM
-            """ + schemaName + """.tmp_subenddates_rows_drug e
+            """ + etlSchemaName + """.tmp_subenddates_rows_drug e
         WHERE
             (2 * e.start_ordinal) - e.overall_ord = 0
         ;
@@ -440,19 +440,19 @@ def createTempSubenddatesDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempEndsDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".temp_ends_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.temp_ends_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.temp_ends_drug
+def createTempEndsDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".temp_ends_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.temp_ends_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.temp_ends_drug
         AS SELECT
             dt.person_id                    AS person_id,
             dt.ingredient_concept_id        AS drug_concept_id,
             dt.drug_exposure_start_date     AS drug_exposure_start_date,
             MIN(e.end_date)                 AS drug_sub_exposure_end_date
         FROM
-            """ + schemaName + """.tmp_pretarget_drug dt
+            """ + etlSchemaName + """.tmp_pretarget_drug dt
         JOIN
-            """ + schemaName + """.tmp_subenddates_drug e
+            """ + etlSchemaName + """.tmp_subenddates_drug e
                 ON  dt.person_id             = e.person_id
                 AND dt.ingredient_concept_id = e.ingredient_concept_id
                 AND e.end_date               >= dt.drug_exposure_start_date
@@ -469,10 +469,10 @@ def createTempEndsDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempSubDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_sub_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_sub_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_sub_drug
+def createTempSubDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_sub_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_sub_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_sub_drug
         AS SELECT
             ROW_NUMBER() OVER (
                 PARTITION BY
@@ -488,7 +488,7 @@ def createTempSubDrug(con, schemaName):
             drug_sub_exposure_end_date      AS drug_sub_exposure_end_date,
             COUNT(*)                        AS drug_exposure_count
         FROM
-            """ + schemaName + """.temp_ends_drug
+            """ + etlSchemaName + """.temp_ends_drug
         GROUP BY
             person_id,
             drug_concept_id,
@@ -504,10 +504,10 @@ def createTempSubDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempFinaltargetDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_finaltarget_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_finaltarget_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_finaltarget_drug
+def createTempFinaltargetDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_finaltarget_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_finaltarget_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_finaltarget_drug
         AS SELECT
             row_number                              AS row_number,
             person_id                               AS person_id,
@@ -517,7 +517,7 @@ def createTempFinaltargetDrug(con, schemaName):
             drug_exposure_count                     AS drug_exposure_count,
             DATE_PART('day', drug_sub_exposure_end_date::timestamp - drug_sub_exposure_start_date::timestamp ) AS days_exposed
         FROM
-            """ + schemaName + """.tmp_sub_drug
+            """ + etlSchemaName + """.tmp_sub_drug
         ;
         """
     with con:
@@ -526,10 +526,10 @@ def createTempFinaltargetDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempEnddatesUnDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_enddates_un_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_enddates_un_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_enddates_un_drug
+def createTempEnddatesUnDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_enddates_un_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_enddates_un_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_enddates_un_drug
             AS SELECT
                 person_id                                       AS person_id,
                 ingredient_concept_id                           AS ingredient_concept_id,
@@ -542,7 +542,7 @@ def createTempEnddatesUnDrug(con, schemaName):
                     ORDER BY
                         drug_sub_exposure_start_date)           AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_finaltarget_drug
+                """ + etlSchemaName + """.tmp_finaltarget_drug
         UNION ALL
         -- pad the end dates by 30 to allow a grace period for overlapping ranges.
             SELECT
@@ -552,7 +552,7 @@ def createTempEnddatesUnDrug(con, schemaName):
                 1                                                               AS event_type,
                 NULL                                                            AS start_ordinal
             FROM
-                """ + schemaName + """.tmp_finaltarget_drug
+                """ + etlSchemaName + """.tmp_finaltarget_drug
         ;
         """
     with con:
@@ -561,10 +561,10 @@ def createTempEnddatesUnDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempEnddatesRowsDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_enddates_rows_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_enddates_rows_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_enddates_rows_drug
+def createTempEnddatesRowsDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_enddates_rows_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_enddates_rows_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_enddates_rows_drug
         AS SELECT
             person_id                       AS person_id,
             ingredient_concept_id           AS ingredient_concept_id,
@@ -589,7 +589,7 @@ def createTempEnddatesRowsDrug(con, schemaName):
                     event_type)             AS overall_ord
             -- this re-numbers the inner UNION so all rows are numbered ordered by the event date
         FROM
-            """ + schemaName + """.tmp_enddates_un_drug
+            """ + etlSchemaName + """.tmp_enddates_un_drug
         ;
         """
     with con:
@@ -598,16 +598,16 @@ def createTempEnddatesRowsDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempEnddatesDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_enddates_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_enddates_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_enddates_drug
+def createTempEnddatesDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_enddates_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_enddates_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_enddates_drug
         AS SELECT
             person_id                                       AS person_id,
             ingredient_concept_id                           AS ingredient_concept_id,
             DATE(event_date - INTERVAL '30 DAY')          AS end_date  -- unpad the end date
         FROM
-            """ + schemaName + """.tmp_enddates_rows_drug e
+            """ + etlSchemaName + """.tmp_enddates_rows_drug e
         WHERE
             (2 * e.start_ordinal) - e.overall_ord = 0
         ;
@@ -618,10 +618,10 @@ def createTempEnddatesDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempDrugeraEndsDrug(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_drugera_ends_drug")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_drugera_ends_drug cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_drugera_ends_drug
+def createTempDrugeraEndsDrug(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_drugera_ends_drug")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_drugera_ends_drug cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_drugera_ends_drug
         AS SELECT
             ft.person_id                        AS person_id,
             ft.ingredient_concept_id            AS ingredient_concept_id,
@@ -630,9 +630,9 @@ def createTempDrugeraEndsDrug(con, schemaName):
             ft.drug_exposure_count              AS drug_exposure_count,
             ft.days_exposed                     AS days_exposed
         FROM
-            """ + schemaName + """.tmp_finaltarget_drug ft
+            """ + etlSchemaName + """.tmp_finaltarget_drug ft
         JOIN
-            """ + schemaName + """.tmp_enddates_drug e
+            """ + etlSchemaName + """.tmp_enddates_drug e
                 ON ft.person_id              = e.person_id
                 AND e.end_date               >= ft.drug_sub_exposure_start_date
                 AND ft.ingredient_concept_id = e.ingredient_concept_id
@@ -650,10 +650,10 @@ def createTempDrugeraEndsDrug(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createDrugEra(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_drug_era")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_drug_era cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_drug_era
+def createDrugEra(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_drug_era")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_drug_era cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_drug_era
         (
             drug_era_id         INTEGER     not null ,
             person_id           INTEGER     not null ,
@@ -669,7 +669,7 @@ def createDrugEra(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_drug_era
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_drug_era
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int                                   AS drug_era_id,
             person_id                                                           AS person_id,
@@ -683,7 +683,7 @@ def createDrugEra(con, schemaName):
             CAST(NULL AS TEXT)                                                AS load_table_id,
             CAST(NULL AS INTEGER)                                                 AS load_row_id
         FROM
-            """ + schemaName + """.tmp_drugera_ends_drug
+            """ + etlSchemaName + """.tmp_drugera_ends_drug
         GROUP BY
             person_id,
             drug_era_end_date,
@@ -700,19 +700,19 @@ def createDrugEra(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def dropTempTables1(con, schemaName):
+def dropTempTables1(con, etlSchemaName):
     log.info("Dropping temporary tables")
-    dropQuery1 = """drop table if exists """ + schemaName + """.tmp_drugera_ends_drug cascade"""
-    dropQuery2 = """drop table if exists """ + schemaName + """.tmp_enddates_drug cascade"""
-    dropQuery3 = """drop table if exists """ + schemaName + """.tmp_finaltarget_drug cascade"""
-    dropQuery4 = """drop table if exists """ + schemaName + """.tmp_enddates_un_drug cascade"""
-    dropQuery5 = """drop table if exists """ + schemaName + """.tmp_sub_drug cascade"""
-    dropQuery6 = """drop table if exists """ + schemaName + """.temp_ends_drug cascade"""
-    dropQuery7 = """drop table if exists """ + schemaName + """.tmp_pretarget_drug cascade"""
-    dropQuery8 = """drop table if exists """ + schemaName + """.tmp_subenddates_un_drug cascade"""
-    dropQuery9 = """drop table if exists """ + schemaName + """.tmp_subenddates_rows_drug cascade"""
-    dropQuery10 = """drop table if exists """ + schemaName + """.tmp_subenddates_drug cascade"""
-    dropQuery11 = """drop table if exists """ + schemaName + """.tmp_enddates_rows_drug cascade"""
+    dropQuery1 = """drop table if exists """ + etlSchemaName + """.tmp_drugera_ends_drug cascade"""
+    dropQuery2 = """drop table if exists """ + etlSchemaName + """.tmp_enddates_drug cascade"""
+    dropQuery3 = """drop table if exists """ + etlSchemaName + """.tmp_finaltarget_drug cascade"""
+    dropQuery4 = """drop table if exists """ + etlSchemaName + """.tmp_enddates_un_drug cascade"""
+    dropQuery5 = """drop table if exists """ + etlSchemaName + """.tmp_sub_drug cascade"""
+    dropQuery6 = """drop table if exists """ + etlSchemaName + """.temp_ends_drug cascade"""
+    dropQuery7 = """drop table if exists """ + etlSchemaName + """.tmp_pretarget_drug cascade"""
+    dropQuery8 = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_un_drug cascade"""
+    dropQuery9 = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_rows_drug cascade"""
+    dropQuery10 = """drop table if exists """ + etlSchemaName + """.tmp_subenddates_drug cascade"""
+    dropQuery11 = """drop table if exists """ + etlSchemaName + """.tmp_enddates_rows_drug cascade"""
 
     with con:
         with con.cursor() as cursor:
@@ -729,10 +729,10 @@ def dropTempTables1(con, schemaName):
             cursor.execute(dropQuery11)
 
 
-def createDoseEra(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_dose_era")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_dose_era cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_dose_era
+def createDoseEra(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_dose_era")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_dose_era cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_dose_era
         (
             dose_era_id           INTEGER     not null ,
             person_id             INTEGER     not null ,
@@ -754,10 +754,10 @@ def createDoseEra(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempDrugIngredientExp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_drugIngredientExp")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_drugIngredientExp cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_drugIngredientExp AS
+def createTempDrugIngredientExp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_drugIngredientExp")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_drugIngredientExp cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_drugIngredientExp AS
         SELECT
             de.drug_exposure_id                     AS drug_exposure_id,
             de.person_id                            AS person_id,
@@ -779,7 +779,7 @@ def createTempDrugIngredientExp(con, schemaName):
             ds.denominator_value                    AS denominator_value,
             ds.denominator_unit_concept_id          AS denominator_unit_concept_id,
             c.concept_class_id                      AS concept_class_id
-        FROM """ + schemaName + """.cdm_drug_exposure de
+        FROM """ + etlSchemaName + """.cdm_drug_exposure de
         INNER JOIN voc_dataset.drug_strength ds
             ON de.drug_concept_id = ds.drug_concept_id
         INNER JOIN voc_dataset.concept_ancestor ca
@@ -796,10 +796,10 @@ def createTempDrugIngredientExp(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempDrugWithDose(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_drugWithDose")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_drugWithDose cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_drugWithDose AS
+def createTempDrugWithDose(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_drugWithDose")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_drugWithDose cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_drugWithDose AS
         SELECT
             drug_exposure_id                        AS drug_exposure_id,
             person_id                               AS person_id,
@@ -907,7 +907,7 @@ def createTempDrugWithDose(con, schemaName):
                     ELSE numerator_unit_concept_id
                 END
             END                                     AS unit_concept_id
-        FROM """ + schemaName + """.tmp_drugIngredientExp
+        FROM """ + etlSchemaName + """.tmp_drugIngredientExp
         ;
         """
     with con:
@@ -916,10 +916,10 @@ def createTempDrugWithDose(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCteDoseTarget(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_cteDoseTarget")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_cteDoseTarget cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_cteDoseTarget AS
+def createTempCteDoseTarget(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_cteDoseTarget")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseTarget cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_cteDoseTarget AS
         SELECT
             dwd.drug_exposure_id                                                AS drug_exposure_id,
             dwd.person_id                                                       AS person_id,
@@ -938,7 +938,7 @@ def createTempCteDoseTarget(con, schemaName):
                 drug_exposure_start_date + INTERVAL '1 day')       AS drug_exposure_end_date
                 -- Add 1 day to the drug_exposure_start_date since
                 -- there is no end_date or INTERVAL for the days_supply
-        FROM """ + schemaName + """.tmp_drugWithDose dwd
+        FROM """ + etlSchemaName + """.tmp_drugWithDose dwd
         WHERE
             dose_value <> -1
         ;
@@ -949,10 +949,10 @@ def createTempCteDoseTarget(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCteDoseEndDatesRawdata(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_cteDoseEndDates_rawdata")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates_rawdata cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_cteDoseEndDates_rawdata AS
+def createTempCteDoseEndDatesRawdata(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_cteDoseEndDates_rawdata")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates_rawdata cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_cteDoseEndDates_rawdata AS
         SELECT
             person_id                                       AS person_id,
             drug_concept_id                                 AS drug_concept_id,
@@ -963,7 +963,7 @@ def createTempCteDoseEndDatesRawdata(con, schemaName):
             ROW_NUMBER() OVER (
                 PARTITION BY person_id, drug_concept_id, unit_concept_id, CAST(dose_value AS INTEGER)
                 ORDER BY drug_exposure_start_date)          AS start_ordinal
-        FROM """ + schemaName + """.tmp_cteDoseTarget
+        FROM """ + etlSchemaName + """.tmp_cteDoseTarget
         UNION ALL
         -- pad the end dates by 30 to allow a grace period for overlapping ranges.
         SELECT
@@ -974,7 +974,7 @@ def createTempCteDoseEndDatesRawdata(con, schemaName):
             Drug_exposure_end_date + 30*INTERVAL '1 day'           AS event_date,
             1                                                           AS event_type,
             NULL                                                        AS start_ordinal
-        FROM """ + schemaName + """.tmp_cteDoseTarget
+        FROM """ + etlSchemaName + """.tmp_cteDoseTarget
         ;
         """
     with con:
@@ -983,10 +983,10 @@ def createTempCteDoseEndDatesRawdata(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCteDoseEndDatesE(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_cteDoseEndDates_e")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates_e cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_cteDoseEndDates_e AS
+def createTempCteDoseEndDatesE(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_cteDoseEndDates_e")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates_e cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_cteDoseEndDates_e AS
         SELECT
             person_id                                                                   AS person_id,
             drug_concept_id                                                             AS drug_concept_id,
@@ -1002,7 +1002,7 @@ def createTempCteDoseEndDatesE(con, schemaName):
                 ORDER BY event_date, event_type)                                        AS overall_ord
                 -- order by above pulls the current START down from the prior
                 -- rows so that the NULLs from the END DATES will contain a value we can compare with
-        FROM """ + schemaName + """.tmp_cteDoseEndDates_rawdata
+        FROM """ + etlSchemaName + """.tmp_cteDoseEndDates_rawdata
         ;
         """
     with con:
@@ -1011,17 +1011,17 @@ def createTempCteDoseEndDatesE(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCteDoseEndDates(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_cteDoseEndDates")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_cteDoseEndDates AS
+def createTempCteDoseEndDates(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_cteDoseEndDates")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_cteDoseEndDates AS
         SELECT
             person_id                                       AS person_id,
             drug_concept_id                                 AS drug_concept_id,
             unit_concept_id                                 AS unit_concept_id,
             dose_value                                      AS dose_value,
             Event_date - 30 * INTERVAL '1 day'           AS end_date   -- unpad the end date
-        FROM """ + schemaName + """.tmp_cteDoseEndDates_e
+        FROM """ + etlSchemaName + """.tmp_cteDoseEndDates_e
         WHERE
             (2 * start_ordinal) - overall_ord = 0
         ;
@@ -1032,10 +1032,10 @@ def createTempCteDoseEndDates(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createTempCteDoseFinalEnds(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_cteDoseFinalEnds")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_cteDoseFinalEnds cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_cteDoseFinalEnds AS
+def createTempCteDoseFinalEnds(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_cteDoseFinalEnds")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseFinalEnds cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_cteDoseFinalEnds AS
         SELECT
             dt.person_id                    AS person_id,
             dt.drug_concept_id              AS drug_concept_id,
@@ -1043,8 +1043,8 @@ def createTempCteDoseFinalEnds(con, schemaName):
             dt.dose_value                   AS dose_value,
             dt.drug_exposure_start_date     AS drug_exposure_start_date,
             MIN(e.end_date)                 AS drug_era_end_date
-        FROM """ + schemaName + """.tmp_cteDoseTarget dt
-        INNER JOIN """ + schemaName + """.tmp_cteDoseEndDates e
+        FROM """ + etlSchemaName + """.tmp_cteDoseTarget dt
+        INNER JOIN """ + etlSchemaName + """.tmp_cteDoseEndDates e
             ON  dt.person_id = e.person_id
             AND dt.drug_concept_id = e.drug_concept_id
             AND dt.unit_concept_id = e.unit_concept_id
@@ -1066,9 +1066,9 @@ def createTempCteDoseFinalEnds(con, schemaName):
             cursor.execute(createQuery)
 
 
-def insertDoseEra(con, schemaName):
-    log.info("Inserting table: " + schemaName + ".cdm_dose_era")
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_dose_era
+def insertDoseEra(con, etlSchemaName):
+    log.info("Inserting table: " + etlSchemaName + ".cdm_dose_era")
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_dose_era
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int   AS dose_era_id,
             person_id                           AS person_id,
@@ -1080,7 +1080,7 @@ def insertDoseEra(con, schemaName):
             'dose_era.drug_exposure'            AS unit_id,
             CAST(NULL AS TEXT)                AS load_table_id,
             CAST(NULL AS INTEGER)                 AS load_row_id
-        FROM """ + schemaName + """.tmp_cteDoseFinalEnds
+        FROM """ + etlSchemaName + """.tmp_cteDoseFinalEnds
         GROUP BY
             person_id,
             drug_concept_id,
@@ -1097,15 +1097,15 @@ def insertDoseEra(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def dropTempTables2(con, schemaName):
+def dropTempTables2(con, etlSchemaName):
     log.info("Dropping temporary tables")
-    dropQuery1 = """drop table if exists """ + schemaName + """.tmp_drugIngredientExp cascade"""
-    dropQuery2 = """drop table if exists """ + schemaName + """.tmp_drugWithDose cascade"""
-    dropQuery3 = """drop table if exists """ + schemaName + """.tmp_cteDoseTarget cascade"""
-    dropQuery4 = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates_rawdata cascade"""
-    dropQuery5 = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates_e cascade"""
-    dropQuery6 = """drop table if exists """ + schemaName + """.tmp_cteDoseEndDates cascade"""
-    dropQuery7 = """drop table if exists """ + schemaName + """.tmp_cteDoseFinalEnds cascade"""
+    dropQuery1 = """drop table if exists """ + etlSchemaName + """.tmp_drugIngredientExp cascade"""
+    dropQuery2 = """drop table if exists """ + etlSchemaName + """.tmp_drugWithDose cascade"""
+    dropQuery3 = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseTarget cascade"""
+    dropQuery4 = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates_rawdata cascade"""
+    dropQuery5 = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates_e cascade"""
+    dropQuery6 = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseEndDates cascade"""
+    dropQuery7 = """drop table if exists """ + etlSchemaName + """.tmp_cteDoseFinalEnds cascade"""
 
     with con:
         with con.cursor() as cursor:
@@ -1118,43 +1118,43 @@ def dropTempTables2(con, schemaName):
             cursor.execute(dropQuery7)
 
 
-def migrateLookup(con, schemaName):
-    createPrescriptionsClean(con = con, schemaName = schemaName)
-    createPrNdcConcept(con = con, schemaName = schemaName)
-    createPrGcptConcept(con = con, schemaName = schemaName)
-    createPrRouteConcept(con = con, schemaName = schemaName)
-    createDrugMapped(con = con, schemaName = schemaName)
+def migrateLookup(con, etlSchemaName):
+    createPrescriptionsClean(con = con, etlSchemaName = etlSchemaName)
+    createPrNdcConcept(con = con, etlSchemaName = etlSchemaName)
+    createPrGcptConcept(con = con, etlSchemaName = etlSchemaName)
+    createPrRouteConcept(con = con, etlSchemaName = etlSchemaName)
+    createDrugMapped(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrate(con, schemaName):
-    createDrugExposure(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createDrugExposure(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateDrugEra(con, schemaName):
-    createJoinVocDrug(con = con, schemaName = schemaName)
-    createTempPretargetDrug(con = con, schemaName = schemaName)
-    createTempSubenddatesUnDrug(con = con, schemaName = schemaName)
-    createTempSubenddatesRowsDrug(con = con, schemaName = schemaName)
-    createTempSubenddatesDrug(con = con, schemaName = schemaName)
-    createTempEndsDrug(con = con, schemaName = schemaName)
-    createTempSubDrug(con = con, schemaName = schemaName)
-    createTempFinaltargetDrug(con = con, schemaName = schemaName)
-    createTempEnddatesUnDrug(con = con, schemaName = schemaName)
-    createTempEnddatesRowsDrug(con = con, schemaName = schemaName)
-    createTempEnddatesDrug(con = con, schemaName = schemaName)
-    createTempDrugeraEndsDrug(con = con, schemaName = schemaName)
-    createDrugEra(con = con, schemaName = schemaName)
-    dropTempTables1(con = con, schemaName = schemaName)
+def migrateDrugEra(con, etlSchemaName):
+    createJoinVocDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempPretargetDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempSubenddatesUnDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempSubenddatesRowsDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempSubenddatesDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempEndsDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempSubDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempFinaltargetDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempEnddatesUnDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempEnddatesRowsDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempEnddatesDrug(con = con, etlSchemaName = etlSchemaName)
+    createTempDrugeraEndsDrug(con = con, etlSchemaName = etlSchemaName)
+    createDrugEra(con = con, etlSchemaName = etlSchemaName)
+    dropTempTables1(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateDoseEra(con, schemaName):
-    createDoseEra(con = con, schemaName = schemaName)
-    createTempDrugIngredientExp(con = con, schemaName = schemaName)
-    createTempDrugWithDose(con = con, schemaName = schemaName)
-    createTempCteDoseTarget(con = con, schemaName = schemaName)
-    createTempCteDoseEndDatesRawdata(con = con, schemaName = schemaName)
-    createTempCteDoseEndDatesE(con = con, schemaName = schemaName)
-    createTempCteDoseEndDates(con = con, schemaName = schemaName)
-    createTempCteDoseFinalEnds(con = con, schemaName = schemaName)
-    insertDoseEra(con = con, schemaName = schemaName)
-    dropTempTables2(con = con, schemaName = schemaName)
+def migrateDoseEra(con, etlSchemaName):
+    createDoseEra(con = con, etlSchemaName = etlSchemaName)
+    createTempDrugIngredientExp(con = con, etlSchemaName = etlSchemaName)
+    createTempDrugWithDose(con = con, etlSchemaName = etlSchemaName)
+    createTempCteDoseTarget(con = con, etlSchemaName = etlSchemaName)
+    createTempCteDoseEndDatesRawdata(con = con, etlSchemaName = etlSchemaName)
+    createTempCteDoseEndDatesE(con = con, etlSchemaName = etlSchemaName)
+    createTempCteDoseEndDates(con = con, etlSchemaName = etlSchemaName)
+    createTempCteDoseFinalEnds(con = con, etlSchemaName = etlSchemaName)
+    insertDoseEra(con = con, etlSchemaName = etlSchemaName)
+    dropTempTables2(con = con, etlSchemaName = etlSchemaName)

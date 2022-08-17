@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createFactRelationship(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_fact_relationship")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_fact_relationship cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_fact_relationship
+def createFactRelationship(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_fact_relationship")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_fact_relationship cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_fact_relationship
         (
             domain_concept_id_1     INTEGER     not null ,
             fact_id_1               INTEGER     not null ,
@@ -18,7 +18,7 @@ def createFactRelationship(con, schemaName):
         )
         ;
         """
-    insertS2MQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
+    insertS2MQuery = """INSERT INTO """ + etlSchemaName + """.cdm_fact_relationship
         SELECT
             36                      AS domain_concept_id_1, -- Specimen
             spec.specimen_id        AS fact_id_1,
@@ -27,13 +27,13 @@ def createFactRelationship(con, schemaName):
             32669                   AS relationship_concept_id, -- Specimen to Measurement   Standard
             'fact.spec.test'        AS unit_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped spec
+            """ + etlSchemaName + """.lk_specimen_mapped spec
         INNER JOIN
-            """ + schemaName + """.lk_meas_organism_mapped org
+            """ + etlSchemaName + """.lk_meas_organism_mapped org
                 ON org.trace_id_spec = spec.trace_id
         ;
         """
-    insertM2SQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
+    insertM2SQuery = """INSERT INTO """ + etlSchemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             org.measurement_id      AS fact_id_1,
@@ -42,13 +42,13 @@ def createFactRelationship(con, schemaName):
             32668                   AS relationship_concept_id, -- Measurement to Specimen   Standard
             'fact.test.spec'        AS unit_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped spec
+            """ + etlSchemaName + """.lk_specimen_mapped spec
         INNER JOIN
-            """ + schemaName + """.lk_meas_organism_mapped org
+            """ + etlSchemaName + """.lk_meas_organism_mapped org
                 ON org.trace_id_spec = spec.trace_id
         ;
         """
-    insertP2CQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
+    insertP2CQuery = """INSERT INTO """ + etlSchemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             org.measurement_id      AS fact_id_1,
@@ -57,13 +57,13 @@ def createFactRelationship(con, schemaName):
             581436                  AS relationship_concept_id, -- Parent to Child Measurement   Standard
             'fact.test.ab'          AS unit_id
         FROM
-            """ + schemaName + """.lk_meas_organism_mapped org
+            """ + etlSchemaName + """.lk_meas_organism_mapped org
         INNER JOIN
-            """ + schemaName + """.lk_meas_ab_mapped ab
+            """ + etlSchemaName + """.lk_meas_ab_mapped ab
                 ON ab.trace_id_org = org.trace_id
         ;
         """
-    insertC2PQuery = """INSERT INTO """ + schemaName + """.cdm_fact_relationship
+    insertC2PQuery = """INSERT INTO """ + etlSchemaName + """.cdm_fact_relationship
         SELECT
             21                      AS domain_concept_id_1, -- Measurement
             ab.measurement_id       AS fact_id_1,
@@ -72,9 +72,9 @@ def createFactRelationship(con, schemaName):
             581437                  AS relationship_concept_id, -- Child to Parent Measurement   Standard
             'fact.ab.test'          AS unit_id
         FROM
-            """ + schemaName + """.lk_meas_organism_mapped org
+            """ + etlSchemaName + """.lk_meas_organism_mapped org
         INNER JOIN
-            """ + schemaName + """.lk_meas_ab_mapped ab
+            """ + etlSchemaName + """.lk_meas_ab_mapped ab
                 ON ab.trace_id_org = org.trace_id
         ;
         """
@@ -88,5 +88,5 @@ def createFactRelationship(con, schemaName):
             cursor.execute(insertC2PQuery)
 
 
-def migrate(con, schemaName):
-    createFactRelationship(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createFactRelationship(con = con, etlSchemaName = etlSchemaName)

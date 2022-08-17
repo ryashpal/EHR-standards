@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createMeasurementOperatorConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_operator_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_operator_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_operator_concept AS
+def createMeasurementOperatorConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_operator_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_operator_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_operator_concept AS
         SELECT
             vc.concept_name     AS source_code, -- operator_name,
             vc.concept_id       AS target_concept_id -- operator_concept_id
@@ -22,10 +22,10 @@ def createMeasurementOperatorConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementUnitTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_meas_unit")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_meas_unit cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_meas_unit AS
+def createMeasurementUnitTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_meas_unit")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_meas_unit cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_meas_unit AS
         SELECT
             vc.concept_code                         AS concept_code,
             vc.vocabulary_id                        AS vocabulary_id,
@@ -48,10 +48,10 @@ def createMeasurementUnitTemp(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementUnitConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_unit_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_unit_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_unit_concept AS
+def createMeasurementUnitConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_unit_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_unit_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_unit_concept AS
         SELECT
             vc.concept_code         AS source_code,
             vc.vocabulary_id        AS source_vocabulary_id,
@@ -60,7 +60,7 @@ def createMeasurementUnitConcept(con, schemaName):
             vc2.domain_id           AS target_domain_id,
             vc2.concept_id          AS target_concept_id
         FROM
-            """ + schemaName + """.tmp_meas_unit vc
+            """ + etlSchemaName + """.tmp_meas_unit vc
         LEFT JOIN
             voc_dataset.concept_relationship vcr
                 ON  vc.concept_id = vcr.concept_id_1
@@ -79,18 +79,18 @@ def createMeasurementUnitConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def dropMeasurementUnitTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_meas_unit")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_meas_unit cascade"""
+def dropMeasurementUnitTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_meas_unit")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_meas_unit cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def createCharteventsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_chartevents_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_chartevents_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_chartevents_clean AS
+def createCharteventsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_chartevents_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_chartevents_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_chartevents_clean AS
         SELECT
             src.subject_id                  AS subject_id,
             src.hadm_id                     AS hadm_id,
@@ -115,9 +115,9 @@ def createCharteventsClean(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.src_chartevents src -- ce
+            """ + etlSchemaName + """.src_chartevents src -- ce
         INNER JOIN
-            """ + schemaName + """.src_d_items di
+            """ + etlSchemaName + """.src_d_items di
                 ON  src.itemid = di.itemid
         WHERE
             di.label NOT LIKE '%Temperature'
@@ -136,10 +136,10 @@ def createCharteventsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createCharteventsCodeTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_chartevents_code_dist")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_chartevents_code_dist cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_chartevents_code_dist AS
+def createCharteventsCodeTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_chartevents_code_dist")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_chartevents_code_dist cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_chartevents_code_dist AS
         SELECT
             itemid                      AS itemid,
             source_code                 AS source_code,
@@ -147,7 +147,7 @@ def createCharteventsCodeTemp(con, schemaName):
             'mimiciv_meas_chart'        AS source_vocabulary_id,
             COUNT(*)                    AS row_count
         FROM
-            """ + schemaName + """.lk_chartevents_clean
+            """ + etlSchemaName + """.lk_chartevents_clean
         GROUP BY
             itemid,
             source_code,
@@ -160,7 +160,7 @@ def createCharteventsCodeTemp(con, schemaName):
             'mimiciv_meas_chartevents_value'    AS source_vocabulary_id, -- both obs values and conditions
             COUNT(*)                            AS row_count
         FROM
-            """ + schemaName + """.lk_chartevents_clean
+            """ + etlSchemaName + """.lk_chartevents_clean
         GROUP BY
             value,
             source_code,
@@ -173,10 +173,10 @@ def createCharteventsCodeTemp(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createCharteventsConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_chartevents_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_chartevents_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_chartevents_concept AS
+def createCharteventsConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_chartevents_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_chartevents_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_chartevents_concept AS
         SELECT
             src.itemid                  AS itemid,
             src.source_code             AS source_code,
@@ -188,7 +188,7 @@ def createCharteventsConcept(con, schemaName):
             vc2.concept_id              AS target_concept_id,
             src.row_count               AS row_count
         FROM
-            """ + schemaName + """.tmp_chartevents_code_dist src
+            """ + etlSchemaName + """.tmp_chartevents_code_dist src
         LEFT JOIN
             voc_dataset.concept vc
                 ON  vc.concept_code = src.source_code
@@ -210,18 +210,18 @@ def createCharteventsConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def dropCharteventsCodeTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_chartevents_code_dist")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_chartevents_code_dist cascade"""
+def dropCharteventsCodeTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_chartevents_code_dist")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_chartevents_code_dist cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def createCharteventsMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_chartevents_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_chartevents_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_chartevents_mapped AS
+def createCharteventsMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_chartevents_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_chartevents_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_chartevents_mapped AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS measurement_id,
             src.subject_id                              AS subject_id,
@@ -259,18 +259,18 @@ def createCharteventsMapped(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_clean src -- ce
+            """ + etlSchemaName + """.lk_chartevents_clean src -- ce
         LEFT JOIN
-            """ + schemaName + """.lk_chartevents_concept c_main -- main
+            """ + etlSchemaName + """.lk_chartevents_concept c_main -- main
                 ON c_main.source_code = src.source_code 
                 AND c_main.source_vocabulary_id = 'mimiciv_meas_chart'
         LEFT JOIN
-            """ + schemaName + """.lk_chartevents_concept c_value -- values for main
+            """ + etlSchemaName + """.lk_chartevents_concept c_value -- values for main
                 ON c_value.source_code = src.value
                 AND c_value.source_vocabulary_id = 'mimiciv_meas_chartevents_value'
                 AND c_value.target_domain_id = 'Meas Value'
         LEFT JOIN 
-            """ + schemaName + """.lk_meas_unit_concept uc
+            """ + etlSchemaName + """.lk_meas_unit_concept uc
                 ON uc.source_code = src.valueuom
         ;
         """
@@ -280,10 +280,10 @@ def createCharteventsMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createCharteventsConditionMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_chartevents_condition_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_chartevents_condition_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_chartevents_condition_mapped AS
+def createCharteventsConditionMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_chartevents_condition_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_chartevents_condition_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_chartevents_condition_mapped AS
         SELECT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -299,9 +299,9 @@ def createCharteventsConditionMapped(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_clean src -- ce
+            """ + etlSchemaName + """.lk_chartevents_clean src -- ce
         INNER JOIN
-            """ + schemaName + """.lk_chartevents_concept c_main -- condition domain from values, mapped
+            """ + etlSchemaName + """.lk_chartevents_concept c_main -- condition domain from values, mapped
                 ON c_main.source_code = src.value
                 AND c_main.source_vocabulary_id = 'mimiciv_meas_chartevents_value'
                 AND c_main.target_domain_id = 'Condition'
@@ -313,10 +313,10 @@ def createCharteventsConditionMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsLookupLabeventsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_d_labitems_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_d_labitems_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_d_labitems_clean AS
+def createMeasurementsLookupLabeventsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_d_labitems_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_d_labitems_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_d_labitems_clean AS
         SELECT
             dlab.itemid                                                 AS itemid, -- for <cdm>.<source_value>
             COALESCE(dlab.loinc_code, 
@@ -329,7 +329,7 @@ def createMeasurementsLookupLabeventsClean(con, schemaName):
             END    
                                                         AS source_vocabulary_id
         FROM
-            """ + schemaName + """.src_d_labitems dlab
+            """ + etlSchemaName + """.src_d_labitems dlab
         ;
         """
     with con:
@@ -338,10 +338,10 @@ def createMeasurementsLookupLabeventsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsLabeventsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_labevents_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_labevents_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_labevents_clean AS
+def createMeasurementsLabeventsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_labevents_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_labevents_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_labevents_clean AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int       AS measurement_id,
             src.subject_id                          AS subject_id,
@@ -363,9 +363,9 @@ def createMeasurementsLabeventsClean(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.src_labevents src
+            """ + etlSchemaName + """.src_labevents src
         INNER JOIN
-            """ + schemaName + """.src_d_labitems dlab
+            """ + etlSchemaName + """.src_d_labitems dlab
                 ON src.itemid = dlab.itemid
         ;
         """
@@ -375,10 +375,10 @@ def createMeasurementsLabeventsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsLookupLabitemsConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_d_labitems_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_d_labitems_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_d_labitems_concept AS
+def createMeasurementsLookupLabitemsConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_d_labitems_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_d_labitems_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_d_labitems_concept AS
         SELECT
             dlab.itemid                 AS itemid,
             dlab.source_code            AS source_code,
@@ -396,7 +396,7 @@ def createMeasurementsLookupLabitemsConcept(con, schemaName):
             vc2.concept_name            AS target_concept_name,
             vc2.standard_concept        AS target_standard_concept
         FROM
-            """ + schemaName + """.lk_meas_d_labitems_clean dlab
+            """ + etlSchemaName + """.lk_meas_d_labitems_clean dlab
         LEFT JOIN
             voc_dataset.concept vc
                 ON  vc.concept_code = dlab.source_code -- join 
@@ -419,10 +419,10 @@ def createMeasurementsLookupLabitemsConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsLabeventsWithId(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_labevents_hadm_id")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_labevents_hadm_id cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_labevents_hadm_id AS
+def createMeasurementsLabeventsWithId(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_labevents_hadm_id")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_labevents_hadm_id cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_labevents_hadm_id AS
         SELECT
             src.trace_id                        AS event_trace_id, 
             adm.hadm_id                         AS hadm_id,
@@ -431,9 +431,9 @@ def createMeasurementsLabeventsWithId(con, schemaName):
                 ORDER BY adm.start_datetime
             )                                   AS row_num
         FROM  
-            """ + schemaName + """.lk_meas_labevents_clean src
+            """ + etlSchemaName + """.lk_meas_labevents_clean src
         INNER JOIN 
-            """ + schemaName + """.lk_admissions_clean adm
+            """ + etlSchemaName + """.lk_admissions_clean adm
                 ON adm.subject_id = src.subject_id
                 AND src.start_datetime BETWEEN adm.start_datetime AND adm.end_datetime
         WHERE
@@ -446,10 +446,10 @@ def createMeasurementsLabeventsWithId(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsLabeventsMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_labevents_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_labevents_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_labevents_mapped AS
+def createMeasurementsLabeventsMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_labevents_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_labevents_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_labevents_mapped AS
         SELECT
             src.measurement_id                      AS measurement_id,
             src.subject_id                          AS subject_id,
@@ -479,18 +479,18 @@ def createMeasurementsLabeventsMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            """ + schemaName + """.lk_meas_labevents_clean src
+            """ + etlSchemaName + """.lk_meas_labevents_clean src
         INNER JOIN 
-            """ + schemaName + """.lk_meas_d_labitems_concept labc
+            """ + etlSchemaName + """.lk_meas_d_labitems_concept labc
                 ON labc.itemid = src.itemid
         LEFT JOIN 
-            """ + schemaName + """.lk_meas_operator_concept opc
+            """ + etlSchemaName + """.lk_meas_operator_concept opc
                 ON opc.source_code = src.value_operator[1]
         LEFT JOIN 
-            """ + schemaName + """.lk_meas_unit_concept uc
+            """ + etlSchemaName + """.lk_meas_unit_concept uc
                 ON uc.source_code = src.valueuom
         LEFT JOIN 
-            """ + schemaName + """.lk_meas_labevents_hadm_id hadm
+            """ + etlSchemaName + """.lk_meas_labevents_hadm_id hadm
                 ON hadm.event_trace_id = src.trace_id
                 AND hadm.row_num = 1
         ;
@@ -501,10 +501,10 @@ def createMeasurementsLabeventsMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMicroCrossReference(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_micro_cross_ref")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_micro_cross_ref cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_micro_cross_ref AS
+def createMicroCrossReference(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_micro_cross_ref")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_micro_cross_ref cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_micro_cross_ref AS
         SELECT
             trace_id                                    AS trace_id_ab, -- for antibiotics
             FIRST_VALUE(src.trace_id) OVER (
@@ -529,7 +529,7 @@ def createMicroCrossReference(con, schemaName):
             hadm_id                                     AS hadm_id,
             COALESCE(src.charttime, src.chartdate)      AS start_datetime -- just to do coalesce once
         FROM
-            """ + schemaName + """.src_microbiologyevents src -- mbe
+            """ + etlSchemaName + """.src_microbiologyevents src -- mbe
         ;
         """
     with con:
@@ -538,10 +538,10 @@ def createMicroCrossReference(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMicroWithId(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_micro_hadm_id")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_micro_hadm_id cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_micro_hadm_id AS
+def createMicroWithId(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_micro_hadm_id")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_micro_hadm_id cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_micro_hadm_id AS
         SELECT
             src.trace_id_ab                     AS event_trace_id,
             adm.hadm_id                         AS hadm_id,
@@ -550,9 +550,9 @@ def createMicroWithId(con, schemaName):
                 ORDER BY adm.start_datetime
             )                                   AS row_num
         FROM  
-            """ + schemaName + """.lk_micro_cross_ref src
+            """ + etlSchemaName + """.lk_micro_cross_ref src
         INNER JOIN 
-            """ + schemaName + """.lk_admissions_clean adm
+            """ + etlSchemaName + """.lk_admissions_clean adm
                 ON adm.subject_id = src.subject_id
                 AND src.start_datetime BETWEEN adm.start_datetime AND adm.end_datetime
         WHERE
@@ -565,10 +565,10 @@ def createMicroWithId(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsOrganismClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_organism_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_organism_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_organism_clean AS
+def createMeasurementsOrganismClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_organism_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_organism_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_organism_clean AS
         SELECT DISTINCT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -582,9 +582,9 @@ def createMeasurementsOrganismClean(con, schemaName):
             0                               AS load_row_id,
             cr.trace_id_org                 AS trace_id         -- trace_id for test-organism
         FROM
-            """ + schemaName + """.src_microbiologyevents src -- mbe
+            """ + etlSchemaName + """.src_microbiologyevents src -- mbe
         INNER JOIN
-            """ + schemaName + """.lk_micro_cross_ref cr
+            """ + etlSchemaName + """.lk_micro_cross_ref cr
                 ON src.trace_id = cr.trace_id_org
         ;
         """
@@ -594,10 +594,10 @@ def createMeasurementsOrganismClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createSpecimenClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_specimen_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_specimen_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_specimen_clean AS
+def createSpecimenClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_specimen_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_specimen_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_specimen_clean AS
         SELECT DISTINCT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -609,9 +609,9 @@ def createSpecimenClean(con, schemaName):
             0                               AS load_row_id,
             cr.trace_id_spec                AS trace_id         -- trace_id for specimen
         FROM
-            """ + schemaName + """.lk_meas_organism_clean src -- mbe
+            """ + etlSchemaName + """.lk_meas_organism_clean src -- mbe
         INNER JOIN
-            """ + schemaName + """.lk_micro_cross_ref cr
+            """ + etlSchemaName + """.lk_micro_cross_ref cr
                 ON src.trace_id = cr.trace_id_spec
         ;
         """
@@ -621,10 +621,10 @@ def createSpecimenClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementsAntibioticClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_ab_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_ab_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_ab_clean AS
+def createMeasurementsAntibioticClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_ab_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_ab_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_ab_clean AS
         SELECT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -640,9 +640,9 @@ def createMeasurementsAntibioticClean(con, schemaName):
             0                               AS load_row_id,
             src.trace_id                    AS trace_id         -- trace_id for antibiotics, no groupping is needed
         FROM
-            """ + schemaName + """.src_microbiologyevents src
+            """ + etlSchemaName + """.src_microbiologyevents src
         INNER JOIN
-            """ + schemaName + """.lk_micro_cross_ref cr
+            """ + etlSchemaName + """.lk_micro_cross_ref cr
                 ON src.trace_id = cr.trace_id_ab
         WHERE
             src.ab_itemid IS NOT NULL
@@ -654,17 +654,17 @@ def createMeasurementsAntibioticClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMicroLookupClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_d_micro_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_d_micro_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_d_micro_clean AS
+def createMicroLookupClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_d_micro_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_d_micro_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_d_micro_clean AS
         SELECT
             dm.itemid                                       AS itemid,
             CAST(dm.itemid AS TEXT)                       AS source_code,
             dm.label                                        AS source_label, -- for organism_mapped: test name plus specimen name
             CONCAT('mimiciv_micro_', LOWER(dm.category))    AS source_vocabulary_id
         FROM
-            """ + schemaName + """.src_d_micro dm
+            """ + etlSchemaName + """.src_d_micro dm
         UNION ALL
         SELECT DISTINCT
             CAST(NULL AS INTEGER)                             AS itemid,
@@ -672,7 +672,7 @@ def createMicroLookupClean(con, schemaName):
             src.interpretation                              AS source_label,
             'mimiciv_micro_resistance'                      AS source_vocabulary_id
         FROM
-            """ + schemaName + """.lk_meas_ab_clean src
+            """ + etlSchemaName + """.lk_meas_ab_clean src
         WHERE
             src.interpretation IS NOT NULL
         ;
@@ -683,10 +683,10 @@ def createMicroLookupClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMicroLookupConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_d_micro_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_d_micro_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_d_micro_concept AS
+def createMicroLookupConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_d_micro_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_d_micro_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_d_micro_concept AS
         SELECT
             dm.itemid                   AS itemid,
             dm.source_code              AS source_code, -- itemid
@@ -703,7 +703,7 @@ def createMicroLookupConcept(con, schemaName):
             vc2.concept_name            AS target_concept_name,
             vc2.standard_concept        AS target_standard_concept
         FROM
-            """ + schemaName + """.lk_d_micro_clean dm
+            """ + etlSchemaName + """.lk_d_micro_clean dm
         LEFT JOIN
             voc_dataset.concept vc
                 ON  dm.source_code = vc.concept_code
@@ -729,10 +729,10 @@ def createMicroLookupConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createSpecimenMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_specimen_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_specimen_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_specimen_mapped AS
+def createSpecimenMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_specimen_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_specimen_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_specimen_mapped AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS specimen_id,
             src.subject_id                              AS subject_id,
@@ -751,12 +751,12 @@ def createSpecimenMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_specimen_clean src
+            """ + etlSchemaName + """.lk_specimen_clean src
         INNER JOIN
-            """ + schemaName + """.lk_d_micro_concept mc
+            """ + etlSchemaName + """.lk_d_micro_concept mc
                 ON src.spec_itemid = mc.itemid
         LEFT JOIN
-            """ + schemaName + """.lk_micro_hadm_id hadm
+            """ + etlSchemaName + """.lk_micro_hadm_id hadm
                 ON hadm.event_trace_id = src.trace_id
                 AND hadm.row_num = 1
         ;
@@ -767,10 +767,10 @@ def createSpecimenMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementOrganismMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_organism_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_organism_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_organism_mapped AS
+def createMeasurementOrganismMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_organism_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_organism_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_organism_mapped AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS measurement_id,
             src.subject_id                              AS subject_id,
@@ -794,18 +794,18 @@ def createMeasurementOrganismMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_meas_organism_clean src
+            """ + etlSchemaName + """.lk_meas_organism_clean src
         INNER JOIN
-            """ + schemaName + """.lk_d_micro_concept tc
+            """ + etlSchemaName + """.lk_d_micro_concept tc
                 ON src.test_itemid = tc.itemid
         INNER JOIN
-            """ + schemaName + """.lk_d_micro_concept sc
+            """ + etlSchemaName + """.lk_d_micro_concept sc
                 ON src.spec_itemid = sc.itemid
         LEFT JOIN
-            """ + schemaName + """.lk_d_micro_concept oc
+            """ + etlSchemaName + """.lk_d_micro_concept oc
                 ON src.org_itemid = oc.itemid
         LEFT JOIN
-            """ + schemaName + """.lk_micro_hadm_id hadm
+            """ + etlSchemaName + """.lk_micro_hadm_id hadm
                 ON hadm.event_trace_id = src.trace_id
                 AND hadm.row_num = 1
         ;
@@ -816,10 +816,10 @@ def createMeasurementOrganismMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurementAntibioticMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_meas_ab_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_meas_ab_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_meas_ab_mapped AS
+def createMeasurementAntibioticMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_meas_ab_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_meas_ab_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_meas_ab_mapped AS
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS measurement_id,
             src.subject_id                              AS subject_id,
@@ -845,19 +845,19 @@ def createMeasurementAntibioticMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_meas_ab_clean src
+            """ + etlSchemaName + """.lk_meas_ab_clean src
         INNER JOIN
-            """ + schemaName + """.lk_d_micro_concept ac
+            """ + etlSchemaName + """.lk_d_micro_concept ac
                 ON src.ab_itemid = ac.itemid
         LEFT JOIN
-            """ + schemaName + """.lk_d_micro_concept rc
+            """ + etlSchemaName + """.lk_d_micro_concept rc
                 ON src.interpretation = rc.source_code
                 AND rc.source_vocabulary_id = 'mimiciv_micro_resistance' -- new vocab
         LEFT JOIN
-            """ + schemaName + """.lk_meas_operator_concept opc -- see lk_meas_labevents.sql
+            """ + etlSchemaName + """.lk_meas_operator_concept opc -- see lk_meas_labevents.sql
                 ON src.dilution_comparison = opc.source_code
         LEFT JOIN
-            """ + schemaName + """.lk_micro_hadm_id hadm
+            """ + etlSchemaName + """.lk_micro_hadm_id hadm
                 ON hadm.event_trace_id = src.trace_id
                 AND hadm.row_num = 1
         ;
@@ -868,10 +868,10 @@ def createMeasurementAntibioticMapped(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createMeasurements(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_measurement")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_measurement cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_measurement
+def createMeasurements(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_measurement")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_measurement cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_measurement
         (
             measurement_id                INTEGER     not null ,
             person_id                     INTEGER     not null ,
@@ -901,7 +901,7 @@ def createMeasurements(con, schemaName):
         )
         ;
         """
-    insertLabeventsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+    insertLabeventsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_measurement
         SELECT
             src.measurement_id                      AS measurement_id,
             per.person_id                           AS person_id,
@@ -929,12 +929,12 @@ def createMeasurements(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            """ + schemaName + """.lk_meas_labevents_mapped src -- 107,209 
+            """ + etlSchemaName + """.lk_meas_labevents_mapped src -- 107,209 
         INNER JOIN
-            """ + schemaName + """.cdm_person per -- 110,849
+            """ + etlSchemaName + """.cdm_person per -- 110,849
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
+            """ + etlSchemaName + """.cdm_visit_occurrence vis -- 116,559
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
@@ -942,7 +942,7 @@ def createMeasurements(con, schemaName):
             src.target_domain_id = 'Measurement' -- 115,272
         ;
         """
-    insertCharteventsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+    insertCharteventsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_measurement
         SELECT
             src.measurement_id                      AS measurement_id,
             per.person_id                           AS person_id,
@@ -970,19 +970,19 @@ def createMeasurements(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            """ + schemaName + """.lk_chartevents_mapped src
+            """ + etlSchemaName + """.lk_chartevents_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Measurement'
         ;
         """
-    insertOrganismQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+    insertOrganismQuery = """INSERT INTO """ + etlSchemaName + """.cdm_measurement
         SELECT
             src.measurement_id                      AS measurement_id,
             per.person_id                           AS person_id,
@@ -1010,12 +1010,12 @@ def createMeasurements(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            """ + schemaName + """.lk_meas_organism_mapped src
+            """ + etlSchemaName + """.lk_meas_organism_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
+            """ + etlSchemaName + """.cdm_visit_occurrence vis -- 116,559
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
@@ -1023,7 +1023,7 @@ def createMeasurements(con, schemaName):
             src.target_domain_id = 'Measurement'
         ;
         """
-    insertAntibioticsQuery = """INSERT INTO """ + schemaName + """.cdm_measurement
+    insertAntibioticsQuery = """INSERT INTO """ + etlSchemaName + """.cdm_measurement
         SELECT
             src.measurement_id                      AS measurement_id,
             per.person_id                           AS person_id,
@@ -1051,12 +1051,12 @@ def createMeasurements(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM  
-            """ + schemaName + """.lk_meas_ab_mapped src
+            """ + etlSchemaName + """.lk_meas_ab_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis -- 116,559
+            """ + etlSchemaName + """.cdm_visit_occurrence vis -- 116,559
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
@@ -1074,42 +1074,42 @@ def createMeasurements(con, schemaName):
             cursor.execute(insertAntibioticsQuery)
 
 
-def migrateUnits(con, schemaName):
-    createMeasurementOperatorConcept(con = con, schemaName = schemaName)
-    createMeasurementUnitTemp(con = con, schemaName = schemaName)
-    createMeasurementUnitConcept(con = con, schemaName = schemaName)
-    dropMeasurementUnitTemp(con = con, schemaName = schemaName)
+def migrateUnits(con, etlSchemaName):
+    createMeasurementOperatorConcept(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementUnitTemp(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementUnitConcept(con = con, etlSchemaName = etlSchemaName)
+    dropMeasurementUnitTemp(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateChartevents(con, schemaName):
-    createCharteventsClean(con = con, schemaName = schemaName)
-    createCharteventsCodeTemp(con = con, schemaName = schemaName)
-    createCharteventsConcept(con = con, schemaName = schemaName)
-    dropCharteventsCodeTemp(con = con, schemaName = schemaName)
-    createCharteventsMapped(con = con, schemaName = schemaName)
-    createCharteventsConditionMapped(con = con, schemaName = schemaName)
+def migrateChartevents(con, etlSchemaName):
+    createCharteventsClean(con = con, etlSchemaName = etlSchemaName)
+    createCharteventsCodeTemp(con = con, etlSchemaName = etlSchemaName)
+    createCharteventsConcept(con = con, etlSchemaName = etlSchemaName)
+    dropCharteventsCodeTemp(con = con, etlSchemaName = etlSchemaName)
+    createCharteventsMapped(con = con, etlSchemaName = etlSchemaName)
+    createCharteventsConditionMapped(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateLabevents(con, schemaName):
-    createMeasurementsLookupLabeventsClean(con = con, schemaName = schemaName)
-    createMeasurementsLabeventsClean(con = con, schemaName = schemaName)
-    createMeasurementsLookupLabitemsConcept(con = con, schemaName = schemaName)
-    createMeasurementsLabeventsWithId(con = con, schemaName = schemaName)
-    createMeasurementsLabeventsMapped(con = con, schemaName = schemaName)
+def migrateLabevents(con, etlSchemaName):
+    createMeasurementsLookupLabeventsClean(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsLabeventsClean(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsLookupLabitemsConcept(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsLabeventsWithId(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsLabeventsMapped(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateSpecimen(con, schemaName):
-    createMicroCrossReference(con = con, schemaName = schemaName)
-    createMicroWithId(con = con, schemaName = schemaName)
-    createMeasurementsOrganismClean(con = con, schemaName = schemaName)
-    createSpecimenClean(con = con, schemaName = schemaName)
-    createMeasurementsAntibioticClean(con = con, schemaName = schemaName)
-    createMicroLookupClean(con = con, schemaName = schemaName)
-    createMicroLookupConcept(con = con, schemaName = schemaName)
-    createSpecimenMapped(con = con, schemaName = schemaName)
-    createMeasurementOrganismMapped(con = con, schemaName = schemaName)
-    createMeasurementAntibioticMapped(con = con, schemaName = schemaName)
+def migrateSpecimen(con, etlSchemaName):
+    createMicroCrossReference(con = con, etlSchemaName = etlSchemaName)
+    createMicroWithId(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsOrganismClean(con = con, etlSchemaName = etlSchemaName)
+    createSpecimenClean(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementsAntibioticClean(con = con, etlSchemaName = etlSchemaName)
+    createMicroLookupClean(con = con, etlSchemaName = etlSchemaName)
+    createMicroLookupConcept(con = con, etlSchemaName = etlSchemaName)
+    createSpecimenMapped(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementOrganismMapped(con = con, etlSchemaName = etlSchemaName)
+    createMeasurementAntibioticMapped(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrate(con, schemaName):
-    createMeasurements(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createMeasurements(con = con, etlSchemaName = etlSchemaName)

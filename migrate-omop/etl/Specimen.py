@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createSpecimen(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_specimen")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_specimen cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_specimen
+def createSpecimen(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_specimen")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_specimen cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_specimen
         (
             specimen_id                 INTEGER     not null ,
             person_id                   INTEGER     not null ,
@@ -31,7 +31,7 @@ def createSpecimen(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_specimen
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_specimen
         SELECT
             src.specimen_id                             AS specimen_id,
             per.person_id                               AS person_id,
@@ -54,9 +54,9 @@ def createSpecimen(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped src
+            """ + etlSchemaName + """.lk_specimen_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         WHERE
             src.target_domain_id = 'Specimen'
@@ -69,5 +69,5 @@ def createSpecimen(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migrate(con, schemaName):
-    createSpecimen(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createSpecimen(con = con, etlSchemaName = etlSchemaName)

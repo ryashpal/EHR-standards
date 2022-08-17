@@ -3,10 +3,10 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createDeathLookup(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_death_adm_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_death_adm_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_death_adm_mapped AS
+def createDeathLookup(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_death_adm_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_death_adm_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_death_adm_mapped AS
         SELECT DISTINCT
             src.subject_id, 
             FIRST_VALUE(src.deathtime) OVER(
@@ -30,7 +30,7 @@ def createDeathLookup(con, schemaName):
                 ORDER BY src.admittime ASC
             )                                   AS trace_id
         FROM 
-            """ + schemaName + """.src_admissions src -- adm
+            """ + etlSchemaName + """.src_admissions src -- adm
         WHERE 
             src.deathtime IS NOT NULL
         ;
@@ -41,10 +41,10 @@ def createDeathLookup(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createDeathCdm(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_death")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_death cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_death
+def createDeathCdm(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_death")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_death cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_death
         (
             person_id               INTEGER     not null ,
             death_date              DATE      not null ,
@@ -60,7 +60,7 @@ def createDeathCdm(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_death
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_death
         SELECT
             per.person_id       AS person_id,
         CASE
@@ -81,9 +81,9 @@ def createDeathCdm(con, schemaName):
             src.load_row_id         AS load_row_id,
             src.trace_id            AS trace_id
         FROM
-            """ + schemaName + """.lk_death_adm_mapped src
+            """ + etlSchemaName + """.lk_death_adm_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         ;
         """
@@ -94,6 +94,6 @@ def createDeathCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def migrate(con, schemaName):
-    createDeathLookup(con = con, schemaName = schemaName)
-    createDeathCdm(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createDeathLookup(con = con, etlSchemaName = etlSchemaName)
+    createDeathCdm(con = con, etlSchemaName = etlSchemaName)

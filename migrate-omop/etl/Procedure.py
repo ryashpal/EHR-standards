@@ -3,34 +3,34 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def dropDatetimeeventsConcept(con, schemaName):
-    log.info("Dropping table: " + schemaName + ".lk_datetimeevents_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_datetimeevents_concept cascade"""
+def dropDatetimeeventsConcept(con, etlSchemaName):
+    log.info("Dropping table: " + etlSchemaName + ".lk_datetimeevents_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_datetimeevents_concept cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def dropProcEventClean(con, schemaName):
-    log.info("Dropping table: " + schemaName + ".lk_proc_event_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_proc_event_clean cascade"""
+def dropProcEventClean(con, etlSchemaName):
+    log.info("Dropping table: " + etlSchemaName + ".lk_proc_event_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_proc_event_clean cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def dropDatetimeeventsClean(con, schemaName):
-    log.info("Dropping table: " + schemaName + ".lk_datetimeevents_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_datetimeevents_clean cascade"""
+def dropDatetimeeventsClean(con, etlSchemaName):
+    log.info("Dropping table: " + etlSchemaName + ".lk_datetimeevents_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_datetimeevents_clean cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def createHcpcsEventsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_hcpcsevents_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_hcpcsevents_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_hcpcsevents_clean AS
+def createHcpcsEventsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_hcpcsevents_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_hcpcsevents_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_hcpcsevents_clean AS
         SELECT
             src.subject_id      AS subject_id,
             src.hadm_id         AS hadm_id,
@@ -43,9 +43,9 @@ def createHcpcsEventsClean(con, schemaName):
             src.load_row_id                     AS load_row_id,
             src.trace_id                        AS trace_id
         FROM
-            """ + schemaName + """.src_hcpcsevents src
+            """ + etlSchemaName + """.src_hcpcsevents src
         INNER JOIN
-            """ + schemaName + """.src_admissions adm
+            """ + etlSchemaName + """.src_admissions adm
                 ON src.hadm_id = adm.hadm_id
         ;
         """
@@ -55,10 +55,10 @@ def createHcpcsEventsClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createProceduresClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_procedures_icd_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_procedures_icd_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_procedures_icd_clean AS
+def createProceduresClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_procedures_icd_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_procedures_icd_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_procedures_icd_clean AS
         SELECT
             src.subject_id                              AS subject_id,
             src.hadm_id                                 AS hadm_id,
@@ -76,9 +76,9 @@ def createProceduresClean(con, schemaName):
             src.load_row_id                     AS load_row_id,
             src.trace_id                        AS trace_id
         FROM
-            """ + schemaName + """.src_procedures_icd src
+            """ + etlSchemaName + """.src_procedures_icd src
         INNER JOIN
-            """ + schemaName + """.src_admissions adm
+            """ + etlSchemaName + """.src_admissions adm
                 ON src.hadm_id = adm.hadm_id
         ;
         """
@@ -88,10 +88,10 @@ def createProceduresClean(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createProcItemsClean(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_proc_d_items_clean")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_proc_d_items_clean cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_proc_d_items_clean AS
+def createProcItemsClean(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_proc_d_items_clean")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_proc_d_items_clean cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_proc_d_items_clean AS
         SELECT
             src.subject_id                      AS subject_id,
             src.hadm_id                         AS hadm_id,
@@ -105,12 +105,12 @@ def createProcItemsClean(con, schemaName):
             src.load_row_id                     AS load_row_id,
             src.trace_id                        AS trace_id
         FROM
-            """ + schemaName + """.src_procedureevents src
+            """ + etlSchemaName + """.src_procedureevents src
         WHERE
             src.cancelreason = 0 -- not cancelled
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.lk_proc_d_items_clean
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.lk_proc_d_items_clean
         SELECT
             src.subject_id                      AS subject_id,
             src.hadm_id                         AS hadm_id,
@@ -123,9 +123,9 @@ def createProcItemsClean(con, schemaName):
             src.load_row_id                     AS load_row_id,
             src.trace_id                        AS trace_id    
         FROM
-            """ + schemaName + """.src_datetimeevents src -- de
+            """ + etlSchemaName + """.src_datetimeevents src -- de
         INNER JOIN
-            """ + schemaName + """.src_patients pat
+            """ + etlSchemaName + """.src_patients pat
                 ON  pat.subject_id = src.subject_id
         WHERE
             EXTRACT(YEAR FROM src.value) >= pat.anchor_year - pat.anchor_age - 1
@@ -138,10 +138,10 @@ def createProcItemsClean(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def createHcpcsConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_hcpcs_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_hcpcs_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_hcpcs_concept AS
+def createHcpcsConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_hcpcs_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_hcpcs_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_hcpcs_concept AS
         SELECT
             vc.concept_code         AS source_code,
             vc.vocabulary_id        AS source_vocabulary_id,    
@@ -170,10 +170,10 @@ def createHcpcsConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createIcdProcConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_icd_proc_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_icd_proc_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_icd_proc_concept AS
+def createIcdProcConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_icd_proc_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_icd_proc_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_icd_proc_concept AS
         SELECT
             REPLACE(vc.concept_code, '.', '')       AS source_code,
             vc.vocabulary_id                        AS source_vocabulary_id,
@@ -202,10 +202,10 @@ def createIcdProcConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createItemidConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_itemid_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_itemid_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_itemid_concept AS
+def createItemidConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_itemid_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_itemid_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_itemid_concept AS
         SELECT
             d_items.itemid                      AS itemid,
             CAST(d_items.itemid AS TEXT)      AS source_code,
@@ -216,7 +216,7 @@ def createItemidConcept(con, schemaName):
             vc2.domain_id                       AS target_domain_id,
             vc2.concept_id                      AS target_concept_id
         FROM
-            """ + schemaName + """.src_d_items d_items
+            """ + etlSchemaName + """.src_d_items d_items
         LEFT JOIN
             voc_dataset.concept vc
                 ON vc.concept_code = CAST(d_items.itemid AS TEXT)
@@ -246,10 +246,10 @@ def createItemidConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createProcedureMapped(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_procedure_mapped")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_procedure_mapped cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_procedure_mapped AS
+def createProcedureMapped(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_procedure_mapped")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_procedure_mapped cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_procedure_mapped AS
         SELECT
             src.subject_id                          AS subject_id, -- to person
             src.hadm_id                             AS hadm_id, -- to visit
@@ -269,13 +269,13 @@ def createProcedureMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_hcpcsevents_clean src
+            """ + etlSchemaName + """.lk_hcpcsevents_clean src
         LEFT JOIN
-            """ + schemaName + """.lk_hcpcs_concept lc
+            """ + etlSchemaName + """.lk_hcpcs_concept lc
                 ON src.hcpcs_cd = lc.source_code
         ;
         """
-    insertIcdQuery = """INSERT INTO """ + schemaName + """.lk_procedure_mapped
+    insertIcdQuery = """INSERT INTO """ + etlSchemaName + """.lk_procedure_mapped
         SELECT
             src.subject_id                          AS subject_id, -- to person
             src.hadm_id                             AS hadm_id, -- to visit
@@ -295,14 +295,14 @@ def createProcedureMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_procedures_icd_clean src
+            """ + etlSchemaName + """.lk_procedures_icd_clean src
         LEFT JOIN
-            """ + schemaName + """.lk_icd_proc_concept lc
+            """ + etlSchemaName + """.lk_icd_proc_concept lc
                 ON  src.source_code = lc.source_code
                 AND src.source_vocabulary_id = lc.source_vocabulary_id
         ;
         """
-    insertProcItemsQuery = """INSERT INTO """ + schemaName + """.lk_procedure_mapped
+    insertProcItemsQuery = """INSERT INTO """ + etlSchemaName + """.lk_procedure_mapped
         SELECT
             src.subject_id                          AS subject_id, -- to person
             src.hadm_id                             AS hadm_id, -- to visit
@@ -323,9 +323,9 @@ def createProcedureMapped(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_proc_d_items_clean src
+            """ + etlSchemaName + """.lk_proc_d_items_clean src
         LEFT JOIN
-            """ + schemaName + """.lk_itemid_concept lc
+            """ + etlSchemaName + """.lk_itemid_concept lc
                 ON src.itemid = lc.itemid
         ;
         """
@@ -337,10 +337,10 @@ def createProcedureMapped(con, schemaName):
             cursor.execute(insertProcItemsQuery)
 
 
-def createProcedureOccurrence(con, schemaName):
-    log.info("Creating table: " + schemaName + ".cdm_procedure_occurrence")
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_procedure_occurrence cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_procedure_occurrence
+def createProcedureOccurrence(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".cdm_procedure_occurrence")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_procedure_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_procedure_occurrence
         (
             procedure_occurrence_id     INTEGER     not null ,
             person_id                   INTEGER     not null ,
@@ -364,7 +364,7 @@ def createProcedureOccurrence(con, schemaName):
         )
         ;
         """
-    insertProcedureMappedQuery = """INSERT INTO """ + schemaName + """.cdm_procedure_occurrence
+    insertProcedureMappedQuery = """INSERT INTO """ + etlSchemaName + """.cdm_procedure_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int          AS procedure_occurrence_id,
             per.person_id                               AS person_id,
@@ -386,19 +386,19 @@ def createProcedureOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_procedure_mapped src
+            """ + etlSchemaName + """.lk_procedure_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Procedure'
         ;
         """
-    insertObservationMappedQuery = """INSERT INTO """ + schemaName + """.cdm_procedure_occurrence
+    insertObservationMappedQuery = """INSERT INTO """ + etlSchemaName + """.cdm_procedure_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int          AS procedure_occurrence_id,
             per.person_id                               AS person_id,
@@ -420,19 +420,19 @@ def createProcedureOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_observation_mapped src
+            """ + etlSchemaName + """.lk_observation_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
             src.target_domain_id = 'Procedure'
         ;
         """
-    insertSpecimenMappedQuery = """INSERT INTO """ + schemaName + """.cdm_procedure_occurrence
+    insertSpecimenMappedQuery = """INSERT INTO """ + etlSchemaName + """.cdm_procedure_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int          AS procedure_occurrence_id,
             per.person_id                               AS person_id,
@@ -454,12 +454,12 @@ def createProcedureOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_specimen_mapped src
+            """ + etlSchemaName + """.lk_specimen_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', 
                         COALESCE(CAST(src.hadm_id AS TEXT), CAST(src.date_id AS TEXT)))
@@ -467,7 +467,7 @@ def createProcedureOccurrence(con, schemaName):
             src.target_domain_id = 'Procedure'
         ;
         """
-    insertCharteventsMappedQuery = """INSERT INTO """ + schemaName + """.cdm_procedure_occurrence
+    insertCharteventsMappedQuery = """INSERT INTO """ + etlSchemaName + """.cdm_procedure_occurrence
         SELECT
             ('x'||substr(md5(random():: text),1,8))::bit(32)::int           AS procedure_occurrence_id,
             per.person_id                               AS person_id,
@@ -489,12 +489,12 @@ def createProcedureOccurrence(con, schemaName):
             src.load_row_id                 AS load_row_id,
             src.trace_id                    AS trace_id
         FROM
-            """ + schemaName + """.lk_chartevents_mapped src
+            """ + etlSchemaName + """.lk_chartevents_mapped src
         INNER JOIN
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
                 ON CAST(src.subject_id AS TEXT) = per.person_source_value
         INNER JOIN
-            """ + schemaName + """.cdm_visit_occurrence vis
+            """ + etlSchemaName + """.cdm_visit_occurrence vis
                 ON  vis.visit_source_value = 
                     CONCAT(CAST(src.subject_id AS TEXT), '|', CAST(src.hadm_id AS TEXT))
         WHERE
@@ -511,17 +511,17 @@ def createProcedureOccurrence(con, schemaName):
             cursor.execute(insertCharteventsMappedQuery)
 
 
-def migrateLookup(con, schemaName):
-    dropDatetimeeventsConcept(con = con, schemaName = schemaName)
-    dropProcEventClean(con = con, schemaName = schemaName)
-    dropDatetimeeventsClean(con = con, schemaName = schemaName)
-    createHcpcsEventsClean(con = con, schemaName = schemaName)
-    createProceduresClean(con = con, schemaName = schemaName)
-    createProcItemsClean(con = con, schemaName = schemaName)
-    createHcpcsConcept(con = con, schemaName = schemaName)
-    createIcdProcConcept(con = con, schemaName = schemaName)
-    createItemidConcept(con = con, schemaName = schemaName)
-    createProcedureMapped(con = con, schemaName = schemaName)
+def migrateLookup(con, etlSchemaName):
+    dropDatetimeeventsConcept(con = con, etlSchemaName = etlSchemaName)
+    dropProcEventClean(con = con, etlSchemaName = etlSchemaName)
+    dropDatetimeeventsClean(con = con, etlSchemaName = etlSchemaName)
+    createHcpcsEventsClean(con = con, etlSchemaName = etlSchemaName)
+    createProceduresClean(con = con, etlSchemaName = etlSchemaName)
+    createProcItemsClean(con = con, etlSchemaName = etlSchemaName)
+    createHcpcsConcept(con = con, etlSchemaName = etlSchemaName)
+    createIcdProcConcept(con = con, etlSchemaName = etlSchemaName)
+    createItemidConcept(con = con, etlSchemaName = etlSchemaName)
+    createProcedureMapped(con = con, etlSchemaName = etlSchemaName)
 
-def migrate(con, schemaName):
-    createProcedureOccurrence(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createProcedureOccurrence(con = con, etlSchemaName = etlSchemaName)

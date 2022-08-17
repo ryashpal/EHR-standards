@@ -2,9 +2,10 @@ import logging
 
 log = logging.getLogger("Standardise")
 
-def unloadConcept(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".concept")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept AS 
+def unloadConcept(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".concept")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.concept cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.concept AS 
         SELECT
             concept_id,
             concept_name,
@@ -16,64 +17,72 @@ def unloadConcept(con, sourceSchemaName, destinationSchemaName):
             valid_start_DATE,
             valid_end_DATE,
             invalid_reason
-        FROM """ + sourceSchemaName + """.concept
+        FROM """ + vocSchemaName + """.concept
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadVocabulary(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".vocabulary")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.vocabulary AS 
+def unloadVocabulary(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".vocabulary")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.vocabulary cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.vocabulary AS 
         SELECT
             vocabulary_id,
             vocabulary_name,
             vocabulary_reference,
             vocabulary_version,
             vocabulary_concept_id
-        FROM """ + sourceSchemaName+ """.vocabulary
+        FROM """ + vocSchemaName+ """.vocabulary
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDomain(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".domain")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.domain AS 
+def unloadDomain(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".domain")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.domain cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.domain AS 
         SELECT
             domain_id,
             domain_name,
             domain_concept_id
-        FROM """ + sourceSchemaName+ """.domain
+        FROM """ + vocSchemaName+ """.domain
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConceptClass(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".concept_class")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept_class AS 
+def unloadConceptClass(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".concept_class")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.concept_class cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.concept_class AS 
         SELECT
             concept_class_id,
             concept_class_name,
             concept_class_concept_id
-        FROM """ + sourceSchemaName+ """.concept_class
+        FROM """ + vocSchemaName+ """.concept_class
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConceptRelationship(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".concept_relationship")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept_relationship AS 
+def unloadConceptRelationship(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".concept_relationship")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.concept_relationship cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.concept_relationship AS 
         SELECT
             concept_id_1,
             concept_id_2,
@@ -81,17 +90,19 @@ def unloadConceptRelationship(con, sourceSchemaName, destinationSchemaName):
             valid_start_DATE,
             valid_end_DATE,
             invalid_reason
-        FROM """ + sourceSchemaName+ """.concept_relationship
+        FROM """ + vocSchemaName+ """.concept_relationship
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadRelationship(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".relationship")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.relationship AS 
+def unloadRelationship(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".relationship")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.relationship cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.relationship AS 
         SELECT
             relationship_id,
             relationship_name,
@@ -99,72 +110,54 @@ def unloadRelationship(con, sourceSchemaName, destinationSchemaName):
             defines_ancestry,
             reverse_relationship_id,
             relationship_concept_id
-        FROM """ + sourceSchemaName+ """.relationship
+        FROM """ + vocSchemaName+ """.relationship
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConceptSynonym(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".concept_synonym")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept_synonym AS 
+def unloadConceptSynonym(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".concept_synonym")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.concept_synonym cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.concept_synonym AS 
         SELECT
             concept_id,
             concept_synonym_name,
             language_concept_id
-        FROM """ + sourceSchemaName+ """.concept_synonym
+        FROM """ + vocSchemaName+ """.concept_synonym
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConceptAncestor(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".concept_ancestor")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.concept_ancestor AS 
+def unloadConceptAncestor(con, vocSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + vocSchemaName + ".concept_ancestor")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.concept_ancestor cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.concept_ancestor AS 
         SELECT
             ancestor_concept_id,
             descendant_concept_id,
             min_levels_of_separation,
             max_levels_of_separation
-        FROM """ + sourceSchemaName+ """.concept_ancestor
+        FROM """ + vocSchemaName+ """.concept_ancestor
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDrugStrength(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".drug_strength")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.drug_strength AS 
-        SELECT
-            drug_concept_id,
-            ingredient_concept_id,
-            amount_value,
-            amount_unit_concept_id,
-            numerator_value,
-            numerator_unit_concept_id,
-            denominator_value,
-            denominator_unit_concept_id,
-            box_size,
-            valid_start_DATE,
-            valid_end_DATE,
-            invalid_reason
-        FROM """ + sourceSchemaName+ """.drug_strength
-        ;
-        """
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(createQuery)
-
-
-def unloadSource(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".cdm_source")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.cdm_source AS 
+def unloadSource(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".cdm_source")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.cdm_source cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.cdm_source AS 
         SELECT
             cdm_source_name,
             cdm_source_abbreviation,
@@ -176,17 +169,19 @@ def unloadSource(con, sourceSchemaName, destinationSchemaName):
             cdm_release_date,
             cdm_version,
             vocabulary_version
-        FROM """ + sourceSchemaName+ """.cdm_cdm_source
+        FROM """ + etlSchemaName+ """.cdm_cdm_source
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadPerson(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".person")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.person AS 
+def unloadPerson(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".person")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.person cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.person AS 
         SELECT
             person_id,
             gender_concept_id,
@@ -206,34 +201,38 @@ def unloadPerson(con, sourceSchemaName, destinationSchemaName):
             race_source_concept_id,
             ethnicity_source_value,
             ethnicity_source_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_person
+        FROM """ + etlSchemaName+ """.cdm_person
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadObservationPeriod(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".observation_period")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.observation_period AS 
+def unloadObservationPeriod(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".observation_period")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.observation_period cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.observation_period AS 
         SELECT
             observation_period_id,
             person_id,
             observation_period_start_date,
             observation_period_end_date,
             period_type_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_observation_period
+        FROM """ + etlSchemaName+ """.cdm_observation_period
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadSpecimen(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".specimen")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.specimen AS 
+def unloadSpecimen(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".specimen")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.specimen cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.specimen AS 
         SELECT
             specimen_id,
             person_id,
@@ -250,17 +249,19 @@ def unloadSpecimen(con, sourceSchemaName, destinationSchemaName):
             unit_source_value,
             anatomic_site_source_value,
             disease_status_source_value
-        FROM """ + sourceSchemaName+ """.cdm_specimen
+        FROM """ + etlSchemaName+ """.cdm_specimen
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDeath(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".death")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.death AS 
+def unloadDeath(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".death")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.death cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.death AS 
         SELECT
             person_id,
             death_date,
@@ -269,17 +270,19 @@ def unloadDeath(con, sourceSchemaName, destinationSchemaName):
             cause_concept_id,
             cause_source_value,
             cause_source_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_death
+        FROM """ + etlSchemaName+ """.cdm_death
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadVisitOccurrence(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".visit_occurrence")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.visit_occurrence AS 
+def unloadVisitOccurrence(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".visit_occurrence")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.visit_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.visit_occurrence AS 
         SELECT
             visit_occurrence_id,
             person_id,
@@ -298,17 +301,19 @@ def unloadVisitOccurrence(con, sourceSchemaName, destinationSchemaName):
             discharge_to_concept_id,
             discharge_to_source_value,
             preceding_visit_occurrence_id
-        FROM """ + sourceSchemaName+ """.cdm_visit_occurrence
+        FROM """ + etlSchemaName+ """.cdm_visit_occurrence
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadVisitDetail(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".visit_detail")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.visit_detail AS 
+def unloadVisitDetail(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".visit_detail")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.visit_detail cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.visit_detail AS 
         SELECT
             visit_detail_id,
             person_id,
@@ -329,17 +334,19 @@ def unloadVisitDetail(con, sourceSchemaName, destinationSchemaName):
             discharge_to_source_value,
             visit_detail_parent_id,
             visit_occurrence_id
-        FROM """ + sourceSchemaName+ """.cdm_visit_detail
+        FROM """ + etlSchemaName+ """.cdm_visit_detail
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadProcedureOccurrence(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".procedure_occurrence")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.procedure_occurrence AS 
+def unloadProcedureOccurrence(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".procedure_occurrence")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.procedure_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.procedure_occurrence AS 
         SELECT
             procedure_occurrence_id,
             person_id,
@@ -355,17 +362,19 @@ def unloadProcedureOccurrence(con, sourceSchemaName, destinationSchemaName):
             procedure_source_value,
             procedure_source_concept_id,
             modifier_source_value
-        FROM """ + sourceSchemaName+ """.cdm_procedure_occurrence
+        FROM """ + etlSchemaName+ """.cdm_procedure_occurrence
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDrugExposure(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".drug_exposure")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.drug_exposure AS 
+def unloadDrugExposure(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".drug_exposure")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.drug_exposure cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.drug_exposure AS 
         SELECT
             drug_exposure_id,
             person_id,
@@ -390,17 +399,19 @@ def unloadDrugExposure(con, sourceSchemaName, destinationSchemaName):
             drug_source_concept_id,
             route_source_value,
             dose_unit_source_value
-        FROM """ + sourceSchemaName+ """.cdm_drug_exposure
+        FROM """ + etlSchemaName+ """.cdm_drug_exposure
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDeviceExposure(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".device_exposure")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.device_exposure AS 
+def unloadDeviceExposure(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".device_exposure")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.device_exposure cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.device_exposure AS 
         SELECT
             device_exposure_id,
             person_id,
@@ -417,17 +428,19 @@ def unloadDeviceExposure(con, sourceSchemaName, destinationSchemaName):
             visit_detail_id,
             device_source_value,
             device_source_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_device_exposure
+        FROM """ + etlSchemaName+ """.cdm_device_exposure
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConditionOccurrence(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".condition_occurrence")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.condition_occurrence AS 
+def unloadConditionOccurrence(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".condition_occurrence")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.condition_occurrence cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.condition_occurrence AS 
         SELECT
             condition_occurrence_id,
             person_id,
@@ -445,17 +458,19 @@ def unloadConditionOccurrence(con, sourceSchemaName, destinationSchemaName):
             condition_source_concept_id,
             condition_status_source_value,
             condition_status_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_condition_occurrence
+        FROM """ + etlSchemaName+ """.cdm_condition_occurrence
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadMeasurement(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".measurement")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.measurement AS 
+def unloadMeasurement(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".measurement")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.measurement cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.measurement AS 
         SELECT
             measurement_id,
             person_id,
@@ -477,17 +492,19 @@ def unloadMeasurement(con, sourceSchemaName, destinationSchemaName):
             measurement_source_concept_id,
             unit_source_value,
             value_source_value
-        FROM """ + sourceSchemaName+ """.cdm_measurement
+        FROM """ + etlSchemaName+ """.cdm_measurement
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadObservation(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".observation")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.observation AS 
+def unloadObservation(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".observation")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.observation cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.observation AS 
         SELECT
             observation_id,
             person_id,
@@ -507,34 +524,38 @@ def unloadObservation(con, sourceSchemaName, destinationSchemaName):
             observation_source_concept_id,
             unit_source_value,
             qualifier_source_value
-        FROM """ + sourceSchemaName+ """.cdm_observation
+        FROM """ + etlSchemaName+ """.cdm_observation
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadFactRelationship(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".fact_relationship")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.fact_relationship AS 
+def unloadFactRelationship(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".fact_relationship")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.fact_relationship cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.fact_relationship AS 
         SELECT
             domain_concept_id_1,
             fact_id_1,
             domain_concept_id_2,
             fact_id_2,
             relationship_concept_id
-        FROM """ + sourceSchemaName+ """.cdm_fact_relationship
+        FROM """ + etlSchemaName+ """.cdm_fact_relationship
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadLocation(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".fact_relationship")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.location AS 
+def unloadLocation(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".fact_relationship")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.location cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.location AS 
         SELECT
             location_id,
             address_1,
@@ -544,17 +565,19 @@ def unloadLocation(con, sourceSchemaName, destinationSchemaName):
             zip,
             county,
             location_source_value
-        FROM """ + sourceSchemaName+ """.cdm_location
+        FROM """ + etlSchemaName+ """.cdm_location
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadCareSite(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".care_site")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.care_site AS 
+def unloadCareSite(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".care_site")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.care_site cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.care_site AS 
         SELECT
             care_site_id,
             care_site_name,
@@ -562,17 +585,19 @@ def unloadCareSite(con, sourceSchemaName, destinationSchemaName):
             location_id,
             care_site_source_value,
             place_of_service_source_value
-        FROM """ + sourceSchemaName+ """.cdm_care_site
+        FROM """ + etlSchemaName+ """.cdm_care_site
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDrugEra(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".drug_era")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.drug_era AS 
+def unloadDrugEra(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".drug_era")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.drug_era cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.drug_era AS 
         SELECT
             drug_era_id,
             person_id,
@@ -581,17 +606,19 @@ def unloadDrugEra(con, sourceSchemaName, destinationSchemaName):
             drug_era_end_date,
             drug_exposure_count,
             gap_days
-        FROM """ + sourceSchemaName+ """.cdm_drug_era
+        FROM """ + etlSchemaName+ """.cdm_drug_era
         ;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadDoseEra(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".dose_era")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.dose_era AS 
+def unloadDoseEra(con, etlSchemaName, cdmSchemaName):
+    log.info("Unloading table: " + etlSchemaName + ".dose_era")
+    dropQuery = """drop table if exists """ + cdmSchemaName + """.dose_era cascade"""
+    createQuery = """CREATE TABLE """ + cdmSchemaName + """.dose_era AS 
         SELECT
             dose_era_id,
             person_id,
@@ -600,60 +627,62 @@ def unloadDoseEra(con, sourceSchemaName, destinationSchemaName):
             dose_value,
             dose_era_start_date,
             dose_era_end_date
-        FROM """ + sourceSchemaName+ """.cdm_dose_era;
+        FROM """ + etlSchemaName+ """.cdm_dose_era;
         """
     with con:
         with con.cursor() as cursor:
+            cursor.execute(dropQuery)
             cursor.execute(createQuery)
 
 
-def unloadConditionEra(con, sourceSchemaName, destinationSchemaName):
-    log.info("Unloading table: " + sourceSchemaName + ".condition_era")
-    createQuery = """CREATE TABLE """ + destinationSchemaName + """.condition_era AS 
-        SELECT
-            condition_era_id,
-            person_id,
-            condition_concept_id,
-            condition_era_start_date,
-            condition_era_end_date,
-            condition_occurrence_count
-        FROM """ + sourceSchemaName+ """.cdm_condition_era
-        ;
-        """
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(createQuery)
+# def unloadConditionEra(con, etlSchemaName, cdmSchemaName):
+#     log.info("Unloading table: " + etlSchemaName + ".condition_era")
+#     dropQuery = """drop table if exists """ + cdmSchemaName + """.condition_era cascade"""
+#     createQuery = """CREATE TABLE """ + cdmSchemaName + """.condition_era AS 
+#         SELECT
+#             condition_era_id,
+#             person_id,
+#             condition_concept_id,
+#             condition_era_start_date,
+#             condition_era_end_date,
+#             condition_occurrence_count
+#         FROM """ + etlSchemaName+ """.cdm_condition_era
+#         ;
+#         """
+#     with con:
+#         with con.cursor() as cursor:
+#             cursor.execute(dropQuery)
+#             cursor.execute(createQuery)
 
 
-def unloadVocabulary(con, sourceSchemaName, destinationSchemaName):
-    unloadConcept(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadVocabulary(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDomain(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConceptClass(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConceptRelationship(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadRelationship(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConceptSynonym(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConceptAncestor(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDrugStrength(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
+def unloadVoc(con, vocSchemaName, cdmSchemaName):
+    unloadConcept(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadVocabulary(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDomain(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadConceptClass(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadConceptRelationship(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadRelationship(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadConceptSynonym(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadConceptAncestor(con=con, vocSchemaName=vocSchemaName, cdmSchemaName=cdmSchemaName)
 
 
-def unloadData(con, sourceSchemaName, destinationSchemaName):
-    unloadSource(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadPerson(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadObservationPeriod(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadSpecimen(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDeath(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadVisitOccurrence(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadVisitDetail(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadProcedureOccurrence(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDrugExposure(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDeviceExposure(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConditionOccurrence(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadMeasurement(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadObservation(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadFactRelationship(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadLocation(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadCareSite(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDrugEra(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadDoseEra(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
-    unloadConditionEra(con=con, sourceSchemaName=sourceSchemaName, destinationSchemaName=destinationSchemaName)
+def unloadData(con, etlSchemaName, cdmSchemaName):
+    unloadSource(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadPerson(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadObservationPeriod(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadSpecimen(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDeath(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadVisitOccurrence(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadVisitDetail(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadProcedureOccurrence(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDrugExposure(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDeviceExposure(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadConditionOccurrence(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadMeasurement(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadObservation(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadFactRelationship(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadLocation(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadCareSite(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDrugEra(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    unloadDoseEra(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)
+    # unloadConditionEra(con=con, etlSchemaName=etlSchemaName, cdmSchemaName=cdmSchemaName)

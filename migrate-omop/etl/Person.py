@@ -3,17 +3,17 @@ import logging
 log = logging.getLogger("Standardise")
 
 
-def createSubjectEthnicityTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_subject_ethnicity")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_subject_ethnicity cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_subject_ethnicity AS
+def createSubjectEthnicityTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_subject_ethnicity")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_subject_ethnicity cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_subject_ethnicity AS
         SELECT DISTINCT
             src.subject_id                      AS subject_id,
             FIRST_VALUE(src.ethnicity) OVER (
                 PARTITION BY src.subject_id
                 ORDER BY src.admittime ASC)   AS ethnicity_first
         FROM
-        """ + schemaName + """.src_admissions src
+        """ + etlSchemaName + """.src_admissions src
         ;
         """
     with con:
@@ -22,18 +22,18 @@ def createSubjectEthnicityTemp(con, schemaName):
             cursor.execute(createQuery)
 
 
-def dropSubjectEthnicityTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_subject_ethnicity")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_subject_ethnicity cascade"""
+def dropSubjectEthnicityTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_subject_ethnicity")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_subject_ethnicity cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def createEthnicityConcept(con, schemaName):
-    log.info("Creating table: " + schemaName + ".lk_pat_ethnicity_concept")
-    dropQuery = """drop table if exists """ + schemaName + """.lk_pat_ethnicity_concept cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.lk_pat_ethnicity_concept AS
+def createEthnicityConcept(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".lk_pat_ethnicity_concept")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.lk_pat_ethnicity_concept cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.lk_pat_ethnicity_concept AS
         SELECT DISTINCT
             src.ethnicity_first   AS source_code,
             vc.concept_id         AS source_concept_id,
@@ -41,7 +41,7 @@ def createEthnicityConcept(con, schemaName):
             vc1.concept_id        AS target_concept_id,
             vc1.vocabulary_id     AS target_vocabulary_id -- look here to distinguish Race and Ethnicity
         FROM
-            """ + schemaName + """.tmp_subject_ethnicity src
+            """ + etlSchemaName + """.tmp_subject_ethnicity src
         LEFT JOIN
             voc_dataset.concept vc
             ON UPPER(vc.concept_code) = UPPER(src.ethnicity_first) -- do the custom mapping
@@ -63,9 +63,9 @@ def createEthnicityConcept(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createPersonCdm(con, schemaName):
-    dropQuery = """drop table if exists """ + schemaName + """.cdm_person cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.cdm_person
+def createPersonCdm(con, etlSchemaName):
+    dropQuery = """drop table if exists """ + etlSchemaName + """.cdm_person cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.cdm_person
         (
             person_id                 INTEGER   not null ,
             gender_concept_id         INTEGER   not null ,
@@ -92,7 +92,7 @@ def createPersonCdm(con, schemaName):
         )
         ;
         """
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_person
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_person
         SELECT
         
         ('x'||substr(md5(random():: text),1,8))::bit(32)::int AS person_id,
@@ -150,12 +150,12 @@ def createPersonCdm(con, schemaName):
             p.load_row_id                 AS load_row_id,
             p.trace_id                    AS trace_id
         FROM
-        """ + schemaName + """.src_patients p
+        """ + etlSchemaName + """.src_patients p
         LEFT JOIN
-            """ + schemaName + """.tmp_subject_ethnicity eth
+            """ + etlSchemaName + """.tmp_subject_ethnicity eth
                 ON  p.subject_id = eth.subject_id
         LEFT JOIN
-            """ + schemaName + """.lk_pat_ethnicity_concept map_eth
+            """ + etlSchemaName + """.lk_pat_ethnicity_concept map_eth
                 ON  eth.ethnicity_first = map_eth.source_code
         ;
         """
@@ -166,15 +166,15 @@ def createPersonCdm(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def createPersonTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_person")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_person cascade"""
-    createQuery = """CREATE TABLE """ + schemaName + """.tmp_person AS
+def createPersonTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_person")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_person cascade"""
+    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_person AS
         SELECT per.*
         FROM 
-            """ + schemaName + """.cdm_person per
+            """ + etlSchemaName + """.cdm_person per
         INNER JOIN
-            """ + schemaName + """.cdm_observation_period op
+            """ + etlSchemaName + """.cdm_observation_period op
                 ON  per.person_id = op.person_id
         ;
         """
@@ -184,13 +184,13 @@ def createPersonTemp(con, schemaName):
             cursor.execute(createQuery)
 
 
-def createPerson(con, schemaName):
-    log.info("Truncating table: " + schemaName + ".cdm_person")
-    truncateQuery = """TRUNCATE TABLE """ + schemaName + """.cdm_person"""
-    insertQuery = """INSERT INTO """ + schemaName + """.cdm_person
+def createPerson(con, etlSchemaName):
+    log.info("Truncating table: " + etlSchemaName + ".cdm_person")
+    truncateQuery = """TRUNCATE TABLE """ + etlSchemaName + """.cdm_person"""
+    insertQuery = """INSERT INTO """ + etlSchemaName + """.cdm_person
         SELECT per.*
         FROM
-            """ + schemaName + """.tmp_person per
+            """ + etlSchemaName + """.tmp_person per
         ;
     """
     with con:
@@ -199,22 +199,22 @@ def createPerson(con, schemaName):
             cursor.execute(insertQuery)
 
 
-def dropPersonTemp(con, schemaName):
-    log.info("Creating table: " + schemaName + ".tmp_person")
-    dropQuery = """drop table if exists """ + schemaName + """.tmp_person cascade"""
+def dropPersonTemp(con, etlSchemaName):
+    log.info("Creating table: " + etlSchemaName + ".tmp_person")
+    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_person cascade"""
     with con:
         with con.cursor() as cursor:
             cursor.execute(dropQuery)
 
 
-def migrate(con, schemaName):
-    createSubjectEthnicityTemp(con = con, schemaName = schemaName)
-    createEthnicityConcept(con = con, schemaName = schemaName)
-    createPersonCdm(con = con, schemaName = schemaName)
-    dropSubjectEthnicityTemp(con = con, schemaName = schemaName)
+def migrate(con, etlSchemaName):
+    createSubjectEthnicityTemp(con = con, etlSchemaName = etlSchemaName)
+    createEthnicityConcept(con = con, etlSchemaName = etlSchemaName)
+    createPersonCdm(con = con, etlSchemaName = etlSchemaName)
+    dropSubjectEthnicityTemp(con = con, etlSchemaName = etlSchemaName)
 
 
-def migrateFinal(con, schemaName):
-    createPersonTemp(con = con, schemaName = schemaName)
-    createPerson(con = con, schemaName = schemaName)
-    dropPersonTemp(con = con, schemaName = schemaName)
+def migrateFinal(con, etlSchemaName):
+    createPersonTemp(con = con, etlSchemaName = etlSchemaName)
+    createPerson(con = con, etlSchemaName = etlSchemaName)
+    dropPersonTemp(con = con, etlSchemaName = etlSchemaName)
