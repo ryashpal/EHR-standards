@@ -14,6 +14,8 @@ etl_schema_name = 'omop_migration_etl_20220817'
 
 cdm_schema_name = 'omop_test_20220817'
 
+# Vocabulary files path
+
 vocabulary = {
     'concept': '/superbugai-data/vocabulary_download_v5/CONCEPT.csv',
     'vocabulary': '/superbugai-data/vocabulary_download_v5/VOCABULARY.csv',
@@ -25,6 +27,8 @@ vocabulary = {
     'concept_ancestor': '/superbugai-data/vocabulary_download_v5/CONCEPT_ANCESTOR.csv',
     'tmp_custom_mapping': '/superbugai-data/vocabulary_download_v5/tmp_custom_mapping.csv',
 }
+
+# CSV file column mapping
 
 patients = {
     'file_name': '/superbugai-data/mimiciv/1.0/core/patients.csv',
