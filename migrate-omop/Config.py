@@ -8,11 +8,13 @@ sql_db_name = 'mimic4'
 
 # new schema to host the migrated tables
 
-lookup_schema_name = 'vocabulary_test_20220817'
+lookup_schema_name = 'vocabulary_test_20220824'
 
-etl_schema_name = 'omop_migration_etl_20220817'
+source_schema_name = 'omop_migration_source_20220824'
 
-cdm_schema_name = 'omop_test_20220817'
+etl_schema_name = 'omop_migration_etl_20220824'
+
+cdm_schema_name = 'omop_test_20220824'
 
 # Vocabulary files path
 
@@ -31,7 +33,7 @@ vocabulary = {
 # CSV file column mapping
 
 patients = {
-    'file_name': '/superbugai-data/mimiciv/1.0/core/patients.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/patients.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'gender': 'gender',
@@ -43,7 +45,7 @@ patients = {
 }
 
 admissions = {
-    'file_name': '/superbugai-data/mimiciv/1.0/core/admissions.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/admissions.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -64,7 +66,7 @@ admissions = {
 }
 
 transfers = {
-    'file_name': '/superbugai-data/mimiciv/1.0/core/transfers.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/transfers.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -77,7 +79,7 @@ transfers = {
 }
 
 diagnoses_icd = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/diagnoses_icd.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/diagnoses_icd.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -88,7 +90,7 @@ diagnoses_icd = {
 }
 
 services = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/services.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/services.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -99,7 +101,7 @@ services = {
 }
 
 labevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/labevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/labevents.csv',
     'column_mapping': {
         'labevent_id': 'labevent_id',
         'subject_id': 'subject_id',
@@ -120,7 +122,7 @@ labevents = {
 }
 
 d_labitems = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/d_labitems.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/d_labitems.csv',
     'column_mapping': {
         'itemid': 'itemid',
         'label': 'label',
@@ -131,7 +133,7 @@ d_labitems = {
 }
 
 procedures_icd = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/procedures_icd.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/procedures_icd.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -143,7 +145,7 @@ procedures_icd = {
 }
 
 hcpcsevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/hcpcsevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/hcpcsevents.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -155,7 +157,7 @@ hcpcsevents = {
 }
 
 drgcodes = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/drgcodes.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/drgcodes.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -168,7 +170,7 @@ drgcodes = {
 }
 
 prescriptions = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/prescriptions.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/prescriptions.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -191,7 +193,7 @@ prescriptions = {
 }
 
 microbiologyevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/microbiologyevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/microbiologyevents.csv',
     'column_mapping': {
         'microevent_id': 'microevent_id',
         'subject_id': 'subject_id',
@@ -221,7 +223,7 @@ microbiologyevents = {
 }
 
 pharmacy = {
-    'file_name': '/superbugai-data/mimiciv/1.0/hosp/pharmacy.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/pharmacy.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -254,7 +256,7 @@ pharmacy = {
 }
 
 procedureevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/icu/procedureevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/procedureevents.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -286,7 +288,7 @@ procedureevents = {
 }
 
 d_items = {
-    'file_name': '/superbugai-data/mimiciv/1.0/icu/d_items.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/d_items.csv',
     'column_mapping': {
         'itemid': 'itemid',
         'label': 'label',
@@ -301,7 +303,7 @@ d_items = {
 }
 
 datetimeevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/icu/datetimeevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/datetimeevents.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',
@@ -316,7 +318,7 @@ datetimeevents = {
 }
 
 chartevents = {
-    'file_name': '/superbugai-data/mimiciv/1.0/icu/chartevents.csv',
+    'file_name': '/superbugai-data/mimiciv/test_data/chartevents.csv',
     'column_mapping': {
         'subject_id': 'subject_id',
         'hadm_id': 'hadm_id',

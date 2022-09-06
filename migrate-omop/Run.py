@@ -53,14 +53,6 @@ def getConnnection():
     return con
 
 
-def dropSchema(con, schemaName):
-    log.info("Dropping schema: " + schemaName)
-    dropSchemaQuery = """drop schema if exists """ + schemaName + """ cascade"""
-    with con:
-        with con.cursor() as cursor:
-            cursor.execute(dropSchemaQuery)
-
-
 def createSchema(con, schemaName):
     log.info("Creating schema: " + schemaName)
     createSchemaQuery = """create schema if not exists """ + schemaName
@@ -76,12 +68,12 @@ def createLookup(con):
 
 def importCsv(con):
     log.info("Importing EHR data from CSV files")
-    Import.importDataCsv(con=con, etlSchemaName=Config.etl_schema_name)
+    Import.importDataCsv(con=con, sourceSchemaName=Config.source_schema_name)
 
 
 def stageData(con):
     log.info("Staging EHR data")
-    Stage.migrate(con=con, sourceSchemaName=Config.etl_schema_name, destinationSchemaName=Config.etl_schema_name)
+    Stage.migrate(con=con, sourceSchemaName=Config.source_schema_name, destinationSchemaName=Config.etl_schema_name)
 
 
 def performETL(con):
@@ -212,27 +204,28 @@ if __name__ == "__main__":
     con = getConnnection()
 
     if args.create_lookup:
-        dropSchema(con=con, schemaName=Config.lookup_schema_name)
         createSchema(con=con, schemaName=Config.lookup_schema_name)
 
-        createLookup(con=con)
+    if args.import_file:
+        createSchema(con=con, schemaName=Config.source_schema_name)
 
-    if args.import_file or args.perform_etl:
-        dropSchema(con=con, schemaName=Config.etl_schema_name)
+    if args.create_lookup or args.import_file or args.perform_etl:
         createSchema(con=con, schemaName=Config.etl_schema_name)
+
+    if args.unload:
+        createSchema(con=con, schemaName=Config.cdm_schema_name)
+
+    if args.create_lookup:
+        createLookup(con=con)
 
     if args.import_file:
         importCsv(con=con)
 
     if args.perform_etl:
         stageData(con=con)
-
         performETL(con=con)
 
     if args.unload:
-        dropSchema(con=con, schemaName=Config.cdm_schema_name)
-        createSchema(con=con, schemaName=Config.cdm_schema_name)
-
         unloadData(con=con)
 
     log.info("End!!")
