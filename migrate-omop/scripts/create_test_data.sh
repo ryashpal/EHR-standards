@@ -1,5 +1,5 @@
 # This shell script is created to quickly create a test EHR data (1% sampled) from the MIMIC IV data
-# Pythoc code for the same is availabel in code snippets folder of this repo
+# Python code for the same is availabel in code snippets folder of this repo
 
 # Change directory to the root of MIMIC IV
 cd /superbugai-data/mimiciv/

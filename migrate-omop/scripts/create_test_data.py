@@ -1,3 +1,7 @@
+# This Python code is for quickly creating a test EHR data (1% sampled) from the MIMIC IV data
+# Python code is better than the shell script as it handles the data enclosed in double quotes with commas inside better
+# Because of this usage of shell script might result in a corrupted file sometimes
+
 import pandas as pd
 
 
