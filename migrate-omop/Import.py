@@ -992,29 +992,29 @@ def importDataCsv(con, sourceSchemaName):
         filePath = Config.services['file_name'],
         fileSeparator=','
         )
-    # importLabEvents(
-    #     con=con,
-    #     sourceSchemaName=sourceSchemaName,
-    #     filePath = Config.labevents['file_name'],
-    #     fileSeparator=','
-    #     )
-    i = 'a'
-    filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
     importLabEvents(
         con=con,
         sourceSchemaName=sourceSchemaName,
-        filePath = filePath + i,
+        filePath = Config.labevents['file_name'],
         fileSeparator=','
         )
-    for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm']:
-        filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
-        importLabEvents(
-            con=con,
-            sourceSchemaName=sourceSchemaName,
-            filePath = filePath + i,
-            fileSeparator=',',
-            createSchema=False
-            )
+    # i = 'a'
+    # filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+    # importLabEvents(
+    #     con=con,
+    #     sourceSchemaName=sourceSchemaName,
+    #     filePath = filePath + i,
+    #     fileSeparator=','
+    #     )
+    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm']:
+    #     filePath = '/superbugai-data/mimiciv/1.0/hosp/xa'
+    #     importLabEvents(
+    #         con=con,
+    #         sourceSchemaName=sourceSchemaName,
+    #         filePath = filePath + i,
+    #         fileSeparator=',',
+    #         createSchema=False
+    #         )
     importLabItems(
         con=con,
         sourceSchemaName=sourceSchemaName,
@@ -1075,25 +1075,25 @@ def importDataCsv(con, sourceSchemaName):
         filePath = Config.datetimeevents['file_name'],
         fileSeparator=','
         )
-    # importChartEvents(
-    #     con=con,
-    #     sourceSchemaName=sourceSchemaName,
-    #     filePath = Config.chartevents['file_name'],
-    #     fileSeparator=','
-    #     )
-    filePath = '/superbugai-data/mimiciv/1.0/icu/xaa'
     importChartEvents(
         con=con,
         sourceSchemaName=sourceSchemaName,
-        filePath = filePath,
+        filePath = Config.chartevents['file_name'],
         fileSeparator=','
         )
-    for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
-        filePath = '/superbugai-data/mimiciv/1.0/icu/xa'
-        importChartEvents(
-            con=con,
-            sourceSchemaName=sourceSchemaName,
-            filePath = filePath + i,
-            fileSeparator=',',
-            createSchema=False
-            )
+    # filePath = '/superbugai-data/mimiciv/1.0/icu/xaa'
+    # importChartEvents(
+    #     con=con,
+    #     sourceSchemaName=sourceSchemaName,
+    #     filePath = filePath,
+    #     fileSeparator=','
+    #     )
+    # for i in ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u']:
+    #     filePath = '/superbugai-data/mimiciv/1.0/icu/xa'
+    #     importChartEvents(
+    #         con=con,
+    #         sourceSchemaName=sourceSchemaName,
+    #         filePath = filePath + i,
+    #         fileSeparator=',',
+    #         createSchema=False
+    #         )

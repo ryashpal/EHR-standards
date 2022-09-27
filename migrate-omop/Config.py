@@ -8,13 +8,13 @@ sql_db_name = 'mimic4'
 
 # new schema to host the migrated tables
 
-lookup_schema_name = 'vocabulary_test_20220824'
+lookup_schema_name = 'vocabulary_test_20220907'
 
-source_schema_name = 'omop_migration_source_20220824'
+source_schema_name = 'omop_migration_source_20220907'
 
-etl_schema_name = 'omop_migration_etl_20220824'
+etl_schema_name = 'omop_migration_etl_20220907'
 
-cdm_schema_name = 'omop_test_20220824'
+cdm_schema_name = 'omop_test_20220907'
 
 # Vocabulary files path
 
@@ -27,7 +27,7 @@ vocabulary = {
     'relationship': '/superbugai-data/vocabulary_download_v5/RELATIONSHIP.csv',
     'concept_synonym': '/superbugai-data/vocabulary_download_v5/CONCEPT_SYNONYM.csv',
     'concept_ancestor': '/superbugai-data/vocabulary_download_v5/CONCEPT_ANCESTOR.csv',
-    'tmp_custom_mapping': '/superbugai-data/vocabulary_download_v5/tmp_custom_mapping.csv',
+    'tmp_custom_mapping': '/superbugai-data/vocabulary_download_v5/tmp_custom_mapping_tmp.csv',
 }
 
 # CSV file column mapping
@@ -330,5 +330,92 @@ chartevents = {
         'valuenum': 'valuenum',
         'valueuom': 'valueuom',
         'warning': 'warning',
+    },
+}
+
+customMapping = {
+    'admission_type': {
+        'source_attributes': {
+            'field_name': 'admission_type',
+            'table_name': 'src_admissions',
+            'vocabulary_id': 'mimiciv_vis_admission_type',
+            'where_condition': '',
+        },
+        'standard_attributes': {
+            'domain_id': 'Visit',
+            'vocabulary_id': 'CMS Place of Service',
+            'concept_class_id': 'Visit',
+            'key_phrase': '',
+        },
+    },
+    # 'admission_location': {
+    #     'source_attributes': {
+    #         'field_name': 'admission_location',
+    #         'table_name': 'src_admissions',
+    #         'vocabulary_id': 'mimiciv_vis_admission_location',
+    #         'where_condition': '',
+    #     },
+    #     'standard_attributes': {
+    #         'domain_id': 'Observation',
+    #         'vocabulary_id': 'SNOMED',
+    #         'concept_class_id': 'Location',
+    #         'key_phrase': '',
+    #     },
+    # },
+    'discharge_location': {
+        'source_attributes': {
+            'field_name': 'discharge_location',
+            'table_name': 'src_admissions',
+            'vocabulary_id': 'mimiciv_vis_discharge_location',
+            'where_condition': '',
+        },
+        'standard_attributes': {
+            'domain_id': 'Observation',
+            'vocabulary_id': 'SNOMED',
+            'concept_class_id': 'Location',
+            'key_phrase': '',
+        },
+    },
+    'ethnicity': {
+        'source_attributes': {
+            'field_name': 'ethnicity',
+            'table_name': 'src_admissions',
+            'vocabulary_id': 'mimiciv_per_ethnicity',
+            'where_condition': '',
+        },
+        'standard_attributes': {
+            'domain_id': 'Race',
+            'vocabulary_id': 'Race',
+            'concept_class_id': 'Race',
+            'key_phrase': '',
+        },
+    },
+    'microtest': {
+        'source_attributes': {
+            'field_name': 'test_name',
+            'table_name': 'src_microbiologyevents',
+            'vocabulary_id': 'mimiciv_micro_microtest',
+            'where_condition': '',
+        },
+        'standard_attributes': {
+            'domain_id': 'Measurement',
+            'vocabulary_id': 'SNOMED',
+            'concept_class_id': 'Procedure',
+            'key_phrase': '',
+        },
+    },
+    'organism': {
+        'source_attributes': {
+            'field_name': 'org_name',
+            'table_name': 'src_microbiologyevents',
+            'vocabulary_id': 'mimiciv_micro_organism',
+            'where_condition': '',
+        },
+        'standard_attributes': {
+            'domain_id': 'Observation',
+            'vocabulary_id': 'SNOMED',
+            'concept_class_id': 'Organism',
+            'key_phrase': '',
+        },
     },
 }

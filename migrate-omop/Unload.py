@@ -155,7 +155,7 @@ def unloadConceptAncestor(con, vocSchemaName, cdmSchemaName):
 
 
 def unloadSource(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".cdm_source")
+    log.info("Unloading table: " + cdmSchemaName + ".cdm_source")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.cdm_source cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.cdm_source AS 
         SELECT
@@ -179,7 +179,7 @@ def unloadSource(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadPerson(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".person")
+    log.info("Unloading table: " + cdmSchemaName + ".person")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.person cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.person AS 
         SELECT
@@ -211,7 +211,7 @@ def unloadPerson(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadObservationPeriod(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".observation_period")
+    log.info("Unloading table: " + cdmSchemaName + ".observation_period")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.observation_period cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.observation_period AS 
         SELECT
@@ -230,7 +230,7 @@ def unloadObservationPeriod(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadSpecimen(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".specimen")
+    log.info("Unloading table: " + cdmSchemaName + ".specimen")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.specimen cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.specimen AS 
         SELECT
@@ -259,7 +259,7 @@ def unloadSpecimen(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadDeath(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".death")
+    log.info("Unloading table: " + cdmSchemaName + ".death")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.death cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.death AS 
         SELECT
@@ -280,7 +280,7 @@ def unloadDeath(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadVisitOccurrence(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".visit_occurrence")
+    log.info("Unloading table: " + cdmSchemaName + ".visit_occurrence")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.visit_occurrence cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.visit_occurrence AS 
         SELECT
@@ -311,7 +311,7 @@ def unloadVisitOccurrence(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadVisitDetail(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".visit_detail")
+    log.info("Unloading table: " + cdmSchemaName + ".visit_detail")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.visit_detail cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.visit_detail AS 
         SELECT
@@ -344,7 +344,7 @@ def unloadVisitDetail(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadProcedureOccurrence(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".procedure_occurrence")
+    log.info("Unloading table: " + cdmSchemaName + ".procedure_occurrence")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.procedure_occurrence cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.procedure_occurrence AS 
         SELECT
@@ -372,7 +372,7 @@ def unloadProcedureOccurrence(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadDrugExposure(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".drug_exposure")
+    log.info("Unloading table: " + cdmSchemaName + ".drug_exposure")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.drug_exposure cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.drug_exposure AS 
         SELECT
@@ -409,7 +409,7 @@ def unloadDrugExposure(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadDeviceExposure(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".device_exposure")
+    log.info("Unloading table: " + cdmSchemaName + ".device_exposure")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.device_exposure cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.device_exposure AS 
         SELECT
@@ -438,7 +438,7 @@ def unloadDeviceExposure(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadConditionOccurrence(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".condition_occurrence")
+    log.info("Unloading table: " + cdmSchemaName + ".condition_occurrence")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.condition_occurrence cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.condition_occurrence AS 
         SELECT
@@ -468,7 +468,7 @@ def unloadConditionOccurrence(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadMeasurement(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".measurement")
+    log.info("Unloading table: " + cdmSchemaName + ".measurement")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.measurement cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.measurement AS 
         SELECT
@@ -502,7 +502,7 @@ def unloadMeasurement(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadObservation(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".observation")
+    log.info("Unloading table: " + cdmSchemaName + ".observation")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.observation cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.observation AS 
         SELECT
@@ -534,7 +534,7 @@ def unloadObservation(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadFactRelationship(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".fact_relationship")
+    log.info("Unloading table: " + cdmSchemaName + ".fact_relationship")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.fact_relationship cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.fact_relationship AS 
         SELECT
@@ -553,7 +553,7 @@ def unloadFactRelationship(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadLocation(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".fact_relationship")
+    log.info("Unloading table: " + cdmSchemaName + ".fact_relationship")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.location cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.location AS 
         SELECT
@@ -575,7 +575,7 @@ def unloadLocation(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadCareSite(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".care_site")
+    log.info("Unloading table: " + cdmSchemaName + ".care_site")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.care_site cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.care_site AS 
         SELECT
@@ -595,7 +595,7 @@ def unloadCareSite(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadDrugEra(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".drug_era")
+    log.info("Unloading table: " + cdmSchemaName + ".drug_era")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.drug_era cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.drug_era AS 
         SELECT
@@ -616,7 +616,7 @@ def unloadDrugEra(con, etlSchemaName, cdmSchemaName):
 
 
 def unloadDoseEra(con, etlSchemaName, cdmSchemaName):
-    log.info("Unloading table: " + etlSchemaName + ".dose_era")
+    log.info("Unloading table: " + cdmSchemaName + ".dose_era")
     dropQuery = """drop table if exists """ + cdmSchemaName + """.dose_era cascade"""
     createQuery = """CREATE TABLE """ + cdmSchemaName + """.dose_era AS 
         SELECT

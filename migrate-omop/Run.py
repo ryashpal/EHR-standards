@@ -63,12 +63,27 @@ def createSchema(con, schemaName):
 
 def createLookup(con):
     log.info("Creating Lookups")
-    Lookup.migrate(con=con)
+    Lookup.migrateStandardVocabulary(con=con)
 
 
 def importCsv(con):
     log.info("Importing EHR data from CSV files")
     Import.importDataCsv(con=con, sourceSchemaName=Config.source_schema_name)
+
+
+def generateCustomLookup(con):
+    log.info("Generate Custom Lookups")
+    Lookup.migrateCustomMapping(con=con, isFromFile=False)
+
+
+def importCustomLookup(con):
+    log.info("Import Custom Lookups")
+    Lookup.migrateCustomMapping(con=con, isFromFile=True)
+
+
+def processCustomLookup(con):
+    log.info("Process Custom Lookups")
+    Lookup.processCustomMapping(con=con)
 
 
 def stageData(con):
@@ -192,6 +207,12 @@ if __name__ == "__main__":
                         help='Create lookup by importing Athena vocabulary and custom mapping')
     parser.add_argument('-f', '--import_file', action='store_true',
                         help='Import EHR from a csv files')
+    parser.add_argument('-s', '--stage', action='store_true',
+                        help='Stage the data on the ETL schema')
+    parser.add_argument('-m', '--generate_mapping', action='store_true',
+                        help='Generate custom mapping of concepts from the data')
+    parser.add_argument('-c', '--import_custom_mapping', action='store_true',
+                        help='Import custom mapping file')
     parser.add_argument('-e', '--perform_etl', action='store_true',
                         help='Perform migration Extract-Transform-Load (ETL) operations')
     parser.add_argument('-u', '--unload', action='store_true',
@@ -209,7 +230,7 @@ if __name__ == "__main__":
     if args.import_file:
         createSchema(con=con, schemaName=Config.source_schema_name)
 
-    if args.create_lookup or args.import_file or args.perform_etl:
+    if args.create_lookup or args.import_file or args.stage or args.generate_mapping or args.import_custom_mapping or args.perform_etl:
         createSchema(con=con, schemaName=Config.etl_schema_name)
 
     if args.unload:
@@ -221,8 +242,19 @@ if __name__ == "__main__":
     if args.import_file:
         importCsv(con=con)
 
-    if args.perform_etl:
+    if args.stage:
         stageData(con=con)
+
+    if args.generate_mapping:
+        generateCustomLookup(con=con)
+
+    if args.import_custom_mapping:
+        importCustomLookup(con=con)
+
+    if args.generate_mapping or args.import_custom_mapping:
+        processCustomLookup(con=con)
+
+    if args.perform_etl:
         performETL(con=con)
 
     if args.unload:

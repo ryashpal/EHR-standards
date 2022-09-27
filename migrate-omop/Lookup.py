@@ -367,10 +367,9 @@ def createLookupRelationship(con, etlSchemaName, lookupSchemaName):
             cursor.execute(createQuery)
 
 
-def createTmpCustomMapping(con, etlSchemaName, filePath):
+def createTmpCustomMapping(con, etlSchemaName):
     log.info("Creating table: " + etlSchemaName + ".tmp_custom_mapping")
-    dropQuery = """drop table if exists """ + etlSchemaName + """.tmp_custom_mapping cascade"""
-    createQuery = """CREATE TABLE """ + etlSchemaName + """.tmp_custom_mapping (
+    createQuery = """CREATE TABLE IF NOT EXISTS """ + etlSchemaName + """.tmp_custom_mapping (
         concept_name			        TEXT		not null,
         source_concept_id		        INTEGER		not null,
         source_vocabulary_id		    TEXT		not null,
@@ -391,12 +390,40 @@ def createTmpCustomMapping(con, etlSchemaName, filePath):
         ;"""
     with con:
         with con.cursor() as cursor:
-            cursor.execute(dropQuery)
             cursor.execute(createQuery)
+
+
+def generateTmpCustomMapping(con, etlSchemaName):
+
+    log.info("Generating table: " + etlSchemaName + ".tmp_custom_mapping")
+
+    import ConceptMapper
+
+    for conceptType in Config.customMapping:
+        df = ConceptMapper.createCustomMapping(
+            con
+            , etlSchemaName = etlSchemaName
+            , fieldName = Config.customMapping[conceptType]['source_attributes']['field_name']
+            , tableName = Config.customMapping[conceptType]['source_attributes']['table_name']
+            , whereCondition = Config.customMapping[conceptType]['source_attributes']['where_condition']
+            , sourceVocabularyId = Config.customMapping[conceptType]['source_attributes']['vocabulary_id']
+            , domainId = Config.customMapping[conceptType]['standard_attributes']['domain_id']
+            , vocabularyId = Config.customMapping[conceptType]['standard_attributes']['vocabulary_id']
+            , conceptClassId = Config.customMapping[conceptType]['standard_attributes']['concept_class_id']
+            , keyPhrase = Config.customMapping[conceptType]['standard_attributes']['key_phrase']
+            )
+        dfColumns = ['concept_name', 'source_concept_id', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'standard_concept', 'concept_code', 'valid_start_date', 'valid_end_date', 'invalid_reason', 'target_concept_id', 'relationship_id', 'reverese_relationship_id', 'relationship_valid_start_date', 'relationship_end_date', 'invalid_reason_cr']
+        __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='tmp_custom_mapping', df=df, dfColumns=dfColumns)
+
+
+def loadTmpCustomMapping(con, etlSchemaName, filePath):
+
+    log.info("Loading table: " + etlSchemaName + ".tmp_custom_mapping")
 
     import pandas as pd
 
     df = pd.read_csv(filePath)
+
     dfColumns = ['concept_name', 'source_concept_id', 'source_vocabulary_id', 'source_domain_id', 'source_concept_class_id', 'standard_concept', 'concept_code', 'valid_start_date', 'valid_end_date', 'invalid_reason', 'target_concept_id', 'relationship_id', 'reverese_relationship_id', 'relationship_valid_start_date', 'relationship_end_date', 'invalid_reason_cr']
     __saveDataframe(con=con, destinationSchemaName=etlSchemaName, destinationTableName='tmp_custom_mapping', df=df, dfColumns=dfColumns)
 
@@ -739,10 +766,13 @@ def dropTmpTables(con, lookupSchemaName):
             cursor.execute(dropQuery6)
 
 
-def migrate(con):
+def migrateStandardVocabulary(con):
     importAthenaVocabulary(con=con)
     stageAthenaVocabulary(con=con)
-    importCustomVocabulary(con=con)
+
+
+def migrateCustomMapping(con, isFromFile):
+    importCustomVocabulary(con=con, isFromFile=isFromFile)
 
 
 def importAthenaVocabulary(con):
@@ -767,8 +797,15 @@ def stageAthenaVocabulary(con):
     createLookupRelationship(con=con, etlSchemaName=Config.etl_schema_name, lookupSchemaName=Config.lookup_schema_name)
 
 
-def importCustomVocabulary(con):
-    createTmpCustomMapping(con=con, etlSchemaName=Config.etl_schema_name, filePath=Config.vocabulary['tmp_custom_mapping'])
+def importCustomVocabulary(con, isFromFile):
+    createTmpCustomMapping(con=con, etlSchemaName=Config.etl_schema_name)
+    if isFromFile:
+        loadTmpCustomMapping(con=con, etlSchemaName=Config.etl_schema_name, filePath=Config.vocabulary['tmp_custom_mapping'])
+    else:
+        generateTmpCustomMapping(con=con, etlSchemaName=Config.etl_schema_name)
+
+
+def processCustomVocabulary(con):
     createTmpCustomConcept(con=con, etlSchemaName=Config.etl_schema_name, lookupSchemaName=Config.lookup_schema_name)
     createTmpCustomConceptRelationship(con=con, etlSchemaName=Config.etl_schema_name, lookupSchemaName=Config.lookup_schema_name)
     createTmpCustomVocabularyDist(con=con, etlSchemaName=Config.etl_schema_name, lookupSchemaName=Config.lookup_schema_name)
@@ -780,3 +817,29 @@ def importCustomVocabulary(con):
     createTmpVocVocabulary(con=con, lookupSchemaName=Config.lookup_schema_name)
     createVocabularyFinal(con=con, lookupSchemaName=Config.lookup_schema_name)
     dropTmpTables(con=con, lookupSchemaName=Config.lookup_schema_name)
+
+
+if __name__ == "__main__":
+
+
+    def getConnnection():
+
+        log.info("Establishing DB connection")
+        import psycopg2
+
+        # Connect to postgres with a copy of the MIMIC-III database
+        con = psycopg2.connect(
+            dbname=Config.sql_db_name,
+            user=Config.sql_user_name,
+            host=Config.sql_host_name,
+            port=Config.sql_port_number,
+            password=Config.sql_password
+            )
+
+        log.info("DB connection obtained successfully")
+
+        return con
+
+
+    con = getConnnection()
+    generateTmpCustomMapping(con=con, etlSchemaName=Config.etl_schema_name)

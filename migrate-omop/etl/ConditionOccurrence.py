@@ -348,14 +348,12 @@ def createCondition(con, etlSchemaName):
 
 def dropTempTables(con, etlSchemaName):
     log.info("Dropping temp tables")
-    dropQuery1 = """drop table if exists """ + etlSchemaName + """.cdm_condition_era cascade"""
     dropQuery2 = """drop table if exists """ + etlSchemaName + """.tmp_enddates_condition cascade"""
     dropQuery3 = """drop table if exists """ + etlSchemaName + """.tmp_dates_rows_condition cascade"""
     dropQuery4 = """drop table if exists """ + etlSchemaName + """.tmp_dates_un_condition cascade"""
     dropQuery5 = """drop table if exists """ + etlSchemaName + """.tmp_target_condition cascade"""
     with con:
         with con.cursor() as cursor:
-            cursor.execute(dropQuery1)
             cursor.execute(dropQuery2)
             cursor.execute(dropQuery3)
             cursor.execute(dropQuery4)
